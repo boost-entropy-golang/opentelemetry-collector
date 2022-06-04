@@ -13,6 +13,7 @@
   - `config.Map` -> `confmap.ConfMap`
   - `config.MapProvider` -> `confmap.Provider`
   - `config.Received` -> `confmap.Received`
+  - `config.NewReceivedFromMap` -> `confmap.NewReceived`
   - `config.CloseFunc` -> `confmap.CloseFunc`
   - `config.ChangeEvent` -> `confmap.ChangeEvent`
   - `config.MapConverter` -> `confmap.Converter`
@@ -23,10 +24,12 @@
   - Package `filemapprovider` -> `fileprovider`
   - Package `overwritepropertiesmapconverter` -> `overwritepropertiesconverter`
 - Deprecate `component.ExtensionDefaultConfigFunc` in favor of `component.ExtensionCreateDefaultConfigFunc` (#5451)
+- Deprecate `confmap.Received.AsMap` in favor of `confmap.Received.AsConf` (#5465)
 
 ### 💡 Enhancements 💡
 
 - Move `service.mapResolver` to `confmap.Resolver` (#5444)
+- Add `linux-arm` architecture to cross build tests in CI (#5472)
 
 ### 🧰 Bug fixes 🧰
 
