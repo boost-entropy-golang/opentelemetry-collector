@@ -4,6 +4,21 @@
 
 ### 🛑 Breaking changes 🛑
 
+- Remove deprecated `pdata.NewValueBytes`. (#5504)
+- Remove deprecated `GetLogger`. (#5504)
+
+### 🚩 Deprecations 🚩
+
+### 💡 Enhancements 💡
+
+- Use OpenCensus `metric` package for process metrics instead of `stats` package (#5486)
+
+### 🧰 Bug fixes 🧰
+
+## v0.53.0 Beta
+
+### 🛑 Breaking changes 🛑
+
 - Remove deprecated `componenterror` package. (#5420)
 - Remove deprecated `config.MapConverterFunc`. (#5419)
 - Remove `AddCollectorVersionTag`, enabled for long time already. (#5471)
