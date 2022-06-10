@@ -28,10 +28,10 @@ type serviceHost struct {
 	factories         component.Factories
 	buildInfo         component.BuildInfo
 
-	builtExporters  builder.Exporters
+	builtExporters  *builder.BuiltExporters
 	builtReceivers  builder.Receivers
 	builtPipelines  builder.BuiltPipelines
-	builtExtensions extensions.Extensions
+	builtExtensions *extensions.BuiltExtensions
 }
 
 // ReportFatalError is used to report to the host that the receiver encountered

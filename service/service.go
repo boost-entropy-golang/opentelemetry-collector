@@ -64,7 +64,7 @@ func newService(set *settings) (*service, error) {
 		return nil, fmt.Errorf("failed to get logger: %w", err)
 	}
 
-	if srv.host.builtExtensions, err = extensions.Build(srv.telemetry, srv.buildInfo, srv.config, srv.host.factories.Extensions); err != nil {
+	if srv.host.builtExtensions, err = extensions.Build(context.Background(), srv.telemetry, srv.buildInfo, srv.config.Extensions, srv.config.Service.Extensions, srv.host.factories.Extensions); err != nil {
 		return nil, fmt.Errorf("cannot build extensions: %w", err)
 	}
 
@@ -72,7 +72,7 @@ func newService(set *settings) (*service, error) {
 	// which are referenced before objects which reference them.
 
 	// First create exporters.
-	if srv.host.builtExporters, err = builder.BuildExporters(srv.telemetry, srv.buildInfo, srv.config, srv.host.factories.Exporters); err != nil {
+	if srv.host.builtExporters, err = builder.BuildExporters(context.Background(), srv.telemetry, srv.buildInfo, srv.config, srv.host.factories.Exporters); err != nil {
 		return nil, fmt.Errorf("cannot build exporters: %w", err)
 	}
 
