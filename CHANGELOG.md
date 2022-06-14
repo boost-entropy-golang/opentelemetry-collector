@@ -18,8 +18,12 @@
 ### 💡 Enhancements 💡
 
 - Use OpenCensus `metric` package for process metrics instead of `stats` package (#5486)
+- Update OTLP to v0.18.0 (#5530)
 
 ### 🧰 Bug fixes 🧰
+
+- Update sum field of exponential histograms to make it optional (#5530)
+- Remove redundant extension shutdown call (#5532)
 
 ## v0.53.0 Beta
 
