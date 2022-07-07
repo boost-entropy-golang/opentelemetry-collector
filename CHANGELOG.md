@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## v0.55.0 Beta
+
 ### 🛑 Breaking changes 🛑
 
 - Remove deprecated `config.ServiceTelemetry` (#5565)
@@ -34,6 +36,7 @@
 ### 🧰 Bug fixes 🧰
 
 - Fix initialization of the OpenTelemetry MetricProvider. (#5571)
+- Set log level for `undefined` stability level to debug. (#5635)
 
 ## v0.54.0 Beta
 
