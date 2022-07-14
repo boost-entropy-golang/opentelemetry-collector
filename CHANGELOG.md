@@ -5,6 +5,8 @@
 ### 💡 Enhancements 💡
 
 - Add `linux-ppc64le` architecture to cross build tests in CI
+- `client`: perform case insensitive lookups in case the requested metadata value isn't found (#5646)
+- `loggingexporter`: Decouple `loglevel` field from level of logged messages (#5678)
 
 ### 🧰 Bug fixes 🧰
 
