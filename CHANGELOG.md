@@ -9,11 +9,13 @@
 - `loggingexporter`: Decouple `loglevel` field from level of logged messages (#5678)
 - Expose `pcommon.NewSliceFromRaw` function (#5679)
 - `loggingexporter`: create the exporter's logger from the service's logger (#5677)
+- Add `otelcol_exporter_queue_capacity` metrics show the collector's exporter queue capacity (#5475)
 
 ### 🧰 Bug fixes 🧰
 
 - Fix Collector panic when disabling telemetry metrics (#5642)
 - Fix Collector panic when featuregate value is empty (#5663)
+- Fix confighttp.compression panic due to nil request.Body. (#5628)
 
 ## v0.55.0 Beta
 
@@ -207,7 +209,7 @@
 - Remove pdata deprecated funcs from 2 versions (v0.48.0) ago. (#5219)
 - Remove non pdata deprecated funcs/structs (#5220)
 - `pmetric.Exemplar.ValueType()` now returns new type `ExemplarValueType` (#5233)
-- Remove deprecated `Delete` pdata func from (v0.47.0). (#5307)
+- Remove deprecated `Delete` pdata func in favor of `pdata.Remove` from (v0.47.0). (#5307)
 
 ### 🚩 Deprecations 🚩
 
