@@ -20,6 +20,16 @@
 
 ### 🚩 Deprecations 🚩
 
+- Deprecated the current Flag API.  The new API provides functions to check and set Flags:
+  - `NumberDataPoint.Flags` -> `NumberDataPoint.FlagsStruct`
+  - `HistogramDataPoint.Flags` -> `HistogramDataPoint.FlagsStruct`
+  - `ExponentialHistogramDataPoint.Flags` -> `ExponentialHistogramDataPoint.FlagsStruct`
+  - `SummaryDataPoint.Flags` -> `SummaryDataPoint.FlagsStruct`
+  - `MetricDataPointFlags` -> `MetricDataPointFlagsStruct`
+  - `NewMetricDataPointFlags` -> `NewMetricDataPointFlagsStruct`
+  - `MetricDataPointFlagsNone` -> `MetricDataPointFlagsStruct.NoRecordedValue`
+  - `MetricDataPointFlagNoRecordedValue` -> `MetricDataPointFlagsStruct.NoRecordedValue`
+  - `MetricDataPointFlag`
 - Deprecate the following component functions added to ensure a stability level is set:
   - `component.WithTracesExporterAndStabilityLevel` -> `component.WithTracesExporter`
   - `component.WithMetricsExporterAndStabilityLevel` -> `component.WithMetricsExporter`
@@ -31,8 +41,10 @@
   - `component.WithMetricsProcessorAndStabilityLevel` -> `component.WithMetricsProcessor`
   - `component.WithLogsProcessorAndStabilityLevel` -> `component.WithLogsProcessor`
   - 
+
 ### 💡 Enhancements 💡
 
+- Make the in-memory and persistent queues more consistent (#5764)ś
 - `ocb` now exits with an error if it fails to load the build configuration. (#5731)
 - Deprecate `HTTPClientSettings.ToClientWithHost` (#5737)
 
