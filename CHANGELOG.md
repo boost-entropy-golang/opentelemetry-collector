@@ -20,6 +20,7 @@
   - `component.WithLogsProcessorAndStabilityLevel`
 - ABI breaking change: `featuregate.Registry.Apply` returns error now.
 - Update minimum go version to 1.18 (#5795)
+- Remove deprecated `Flags` API from pdata (#5814)
 
 ### 🚩 Deprecations 🚩
 
@@ -34,10 +35,13 @@
   - `component.ReceiverFactory.TracesReceiverStability`
   - `component.ReceiverFactory.MetricsReceiverStability`
   - `component.ReceiverFactory.LogsReceiverStability`
+- Deprecate `obsreport.ProcessorSettings.Level` and `obsreport.ExporterSettings.Level`, use MetricsLevel from CreateSettings (#5824)
 
 ### 💡 Enhancements 💡
 
+- Enable persistent queue in the build by default (#5828)
 - Bump to opentelemetry-proto v0.19.0. (#5823)
+- Expose `Scope.Attributes` in pdata (#5826)
 
 ### 🧰 Bug fixes 🧰
 
