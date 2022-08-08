@@ -24,7 +24,8 @@
 
 ### 🚩 Deprecations 🚩
 
-- Deprecate `featuregate.Registry.MustApply` in favor of `featuregate.Registry.Apply`.
+- Deprecate duplicate settings in service.ConfigProvider, embed ResolverSettings (#5843)
+- Deprecate `featuregate.Registry.MustApply` in favor of `featuregate.Registry.Apply`. (#5801)
 - Deprecate the `component.Factory.StabilityLevel(config.DataType)` in favor of Stability per component (#5762):
   - `component.ExporterFactory.TracesExporterStability`
   - `component.ExporterFactory.MetricsExporterStability`
