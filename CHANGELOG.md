@@ -21,6 +21,7 @@
 - Deprecates `LogRecord.Flags()` and `LogRecord.SetFlags()` in favor of `LogRecord.FlagsStruct()`. (#5866)
 - Deprecate `exporterhelper.New[Traces|Metrics|Logs]ExporterWithContext` in favor of `exporterhelper.New[Traces|Metrics|Logs]Exporter` (#5914)
 - Deprecate `component.NewExtensionFactoryWithStabilityLevel` in favor of `component.NewExtensionFactory` (#5917)
+- Deprecate `plog.SeverityNumber[UPPERCASE]` constants (#5927)
 
 ### 💡 Enhancements 💡
 
@@ -31,6 +32,9 @@
 ### 🧰 Bug fixes 🧰
 
 - Fix bug in setting the correct collector state after a configuration change event. (#5830)
+- Fix json trace unmarshalling for numbers (#5924):
+  - Accept both string and number for int32/uint32.
+  - Read uint64 numbers without converting from int64.
 
 ## v0.58.0 Beta
 
