@@ -4,6 +4,11 @@
 
 ### 🛑 Breaking changes 🛑
 
+- Remove deprecated fields/funcs from `service` (#5907)
+  - Remove `ConfigProviderSettings.Location`
+  - Remove `ConfigProviderSettings.MapProviders`
+  - Remove `ConfigProviderSettings.MapConverters`
+  - Remove `featuregate.Registry.MustAppy`
 - Remove deprecated funcs from `pdata` module. (#5911)
   - Remove `pmetric.MetricDataPointFlags.String()`
   - Remove `pmetric.NumberDataPoint.FlagsStruct()`
@@ -22,6 +27,9 @@
 - Deprecate `exporterhelper.New[Traces|Metrics|Logs]ExporterWithContext` in favor of `exporterhelper.New[Traces|Metrics|Logs]Exporter` (#5914)
 - Deprecate `component.NewExtensionFactoryWithStabilityLevel` in favor of `component.NewExtensionFactory` (#5917)
 - Deprecate `plog.SeverityNumber[UPPERCASE]` constants (#5927)
+- Deprecate FlagsStruct types (#5933):
+  - `MetricDataPointFlagsStruct` -> `MetricDataPointFlags`
+  - `NewMetricDataPointFlagsStruct` -> `NewMetricDataPointFlags`
 
 ### 💡 Enhancements 💡
 
@@ -77,8 +85,6 @@
 - Deprecate `processorhelper.New[Traces|Metrics|Logs]Processor` in favor of `processorhelper.New[Traces|Metrics|Logs]ProcessorWithCreateSettings` (#5833)
 - Deprecate MetricDataPointFlags.String(), no other pdata flags have this method (#5868)
 - Deprecates `FlagsStruct` in favor of `Flags` (#5842)
-  - `MetricDataPointFlagsStruct` -> `MetricDataPointFlags`
-  - `NewMetricDataPointFlagsStruct` -> `NewMetricDataPointFlags`
   - `FlagsStruct` -> `Flags`
 - Deprecate `exporterhelper.New[Traces|Metrics|Logs]Exporter` in favor of `exporterhelper.New[Traces|Metrics|Logs]ExporterWithContext` (#5834)
 
