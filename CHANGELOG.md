@@ -33,12 +33,15 @@
 
 ### 💡 Enhancements 💡
 
+- Added `MarshalerSizer` interface to `ptrace`, `plog`, and `pmetric` packages. `NewProtoMarshaler` now returns a `MarshalerSizer` (#5929)
 - Add support to unmarshalls bytes into pmetric.Metrics with `jsoniter` in jsonUnmarshaler(#5433)
 - Add httpprovider to allow loading config files stored in HTTP (#5810)
 - Added `service.telemetry.traces.propagators` configuration to set propagators for collector's internal spans. (#5572)
+- Remove unnecessary duplicate code and allocations for reading enums in JSON. (#5928)
 
 ### 🧰 Bug fixes 🧰
 
+- Fix reading scope attributes for trace JSON, remove duplicate code. (#5930)
 - Fix bug in setting the correct collector state after a configuration change event. (#5830)
 - Fix json trace unmarshalling for numbers (#5924):
   - Accept both string and number for int32/uint32.
