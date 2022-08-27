@@ -19,6 +19,7 @@
 - Replace `processorhelper.New[Traces|Metrics|Logs]Exporter` with `processorhelper.New[Traces|Metrics|Logs]ProcessorWithCreateSettings` definition (#5915)
 - Replace `exporterhelper.New[Traces|Metrics|Logs]Exporter` with `exporterhelper.New[Traces|Metrics|Logs]ExporterWithContext` definition (#5914)
 - Replace ``component.NewExtensionFactory`` with `component.NewExtensionFactoryWithStabilityLevel` definition (#5917)
+- Set TLS 1.2 as default for `min_version` for TLS configuration in case this property is not defined (affects servers). (#5956)
 
 ### 🚩 Deprecations 🚩
 
@@ -46,6 +47,7 @@
 - Add an AsRaw func on the flags, lots of places to encode these flags. (#5934)
 - Change pdata generated types to use type definition instead of aliases. (#5936)
   - Improves documentation, and makes code easier to read/understand.
+- Log `InstrumentationScope` attributes in `loggingexporter` (#5976)
 
 ### 🧰 Bug fixes 🧰
 
