@@ -4,6 +4,15 @@
 
 ### 🛑 Breaking changes 🛑
 
+- Remove deprecated components helpers funcs (#6006)
+  - `exporterhelper.New[Traces|Metrics|Logs]ExporterWithContext`
+  - `processorhelper.New[Traces|Metrics|Logs]ProcessorWithCreateSettings`
+  - `component.NewExtensionFactoryWithStabilityLevel`
+
+## v0.59.0 Beta
+
+### 🛑 Breaking changes 🛑
+
 - Remove deprecated fields/funcs from `service` (#5907)
   - Remove `ConfigProviderSettings.Location`
   - Remove `ConfigProviderSettings.MapProviders`
@@ -68,6 +77,7 @@
   - Accept both string and number for float64.
   - Accept both string and number for int32/uint32.
   - Read uint64 numbers without converting from int64.
+- Fix persistent storage client not closing when shutting down (#6003)
 
 ## v0.58.0 Beta
 
