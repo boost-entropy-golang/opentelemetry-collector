@@ -4,10 +4,33 @@
 
 ### 🛑 Breaking changes 🛑
 
+- Replace deprecated `*DataPoint.Flags()` with `*DataPoint.[Set]FlagsImmutable()`. (#6017)
+- Remove deprecated `MetricDataPointFlagsStruct` struct and `NewMetricDataPointFlagsStruct` func. (#6017)
+- Replace deprecated `MetricDataPointFlags` with `MetricDataPointFlagsImmutable`. (#6017)
+- Replace deprecated `LogRecord.[Set]Flags()` with `LogRecord.[Set]FlagsStruct()`. (#6007)
 - Remove deprecated components helpers funcs (#6006)
   - `exporterhelper.New[Traces|Metrics|Logs]ExporterWithContext`
   - `processorhelper.New[Traces|Metrics|Logs]ProcessorWithCreateSettings`
   - `component.NewExtensionFactoryWithStabilityLevel`
+- Remove deprecated `pcommon.InvalidTraceID` and `pcommon.InvalidSpanID` funcs (#6008)
+- Remove deprecated `pcommon.Map` methods: `Update`, `Upsert`, `InsertNull` (#6019)
+
+### 🚩 Deprecations 🚩
+
+- Deprecate `pcommon.Map.Update+` in favor of `pcommon.Map.Get` + `pcommon.Value.Set+` (#6013)
+- Deprecate `pcommon.Empty[Trace|Span]ID` in favor of `pcommon.New[Trace|Span]IDEmpty` (#6008)
+- Deprecate `pcommon.[Trace|Span]ID.Bytes` in favor direct conversion. (#6008)
+- Deprecate `pcommon.New[Trace|Span]ID` in favor direct conversion. (#6008)
+- Deprecate `MetricDataPointFlagsImmutable` type. (#6017)
+- Deprecate `*DataPoint.[Set]FlagsImmutable()` funcs in favor of `*DataPoint.[Set]Flags()`. (#6017)
+
+### 🚩 Deprecations 🚩
+
+- Deprecate `LogRecord.FlagsStruct()` and `LogRecord.SetFlagsStruct()` in favor of `LogRecord.Flags()` and `LogRecord.SetFlags()`. (#6007)
+
+### 💡 Enhancements 💡
+
+- Add `skip-get-modules` builder flag to support isolated environment executions (#6009)
 
 ## v0.59.0 Beta
 
@@ -190,7 +213,7 @@ There isn't a valid core binary for this release. Use v0.57.2 instead.
 
 ### 💡 Enhancements 💡
 
-- Make the in-memory and persistent queues more consistent (#5764)ś
+- Make the in-memory and persistent queues more consistent (#5764)
 - `ocb` now exits with an error if it fails to load the build configuration. (#5731)
 - Deprecate `HTTPClientSettings.ToClientWithHost` (#5737)
 

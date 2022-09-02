@@ -21,6 +21,7 @@ import (
 	"sort"
 
 	"go.opentelemetry.io/collector/pdata/internal"
+	"go.opentelemetry.io/collector/pdata/internal/data"
 	otlplogs "go.opentelemetry.io/collector/pdata/internal/data/protogen/logs/v1"
 	"go.opentelemetry.io/collector/pdata/pcommon"
 )
@@ -621,31 +622,31 @@ func (ms LogRecord) SetTimestamp(v pcommon.Timestamp) {
 
 // TraceID returns the traceid associated with this LogRecord.
 func (ms LogRecord) TraceID() pcommon.TraceID {
-	return pcommon.NewTraceID(ms.getOrig().TraceId)
+	return pcommon.TraceID(ms.getOrig().TraceId)
 }
 
 // SetTraceID replaces the traceid associated with this LogRecord.
 func (ms LogRecord) SetTraceID(v pcommon.TraceID) {
-	ms.getOrig().TraceId = v.Bytes()
+	ms.getOrig().TraceId = data.TraceID(v)
 }
 
 // SpanID returns the spanid associated with this LogRecord.
 func (ms LogRecord) SpanID() pcommon.SpanID {
-	return pcommon.NewSpanID(ms.getOrig().SpanId)
+	return pcommon.SpanID(ms.getOrig().SpanId)
 }
 
 // SetSpanID replaces the spanid associated with this LogRecord.
 func (ms LogRecord) SetSpanID(v pcommon.SpanID) {
-	ms.getOrig().SpanId = v.Bytes()
+	ms.getOrig().SpanId = data.SpanID(v)
 }
 
-// FlagsStruct returns the flagsstruct associated with this LogRecord.
-func (ms LogRecord) FlagsStruct() LogRecordFlags {
+// Flags returns the flags associated with this LogRecord.
+func (ms LogRecord) Flags() LogRecordFlags {
 	return LogRecordFlags(ms.getOrig().Flags)
 }
 
-// SetFlagsStruct replaces the flagsstruct associated with this LogRecord.
-func (ms LogRecord) SetFlagsStruct(v LogRecordFlags) {
+// SetFlags replaces the flags associated with this LogRecord.
+func (ms LogRecord) SetFlags(v LogRecordFlags) {
 	ms.getOrig().Flags = uint32(v)
 }
 
@@ -695,7 +696,7 @@ func (ms LogRecord) CopyTo(dest LogRecord) {
 	dest.SetTimestamp(ms.Timestamp())
 	dest.SetTraceID(ms.TraceID())
 	dest.SetSpanID(ms.SpanID())
-	dest.SetFlagsStruct(ms.FlagsStruct())
+	dest.SetFlags(ms.Flags())
 	dest.SetSeverityText(ms.SeverityText())
 	dest.SetSeverityNumber(ms.SeverityNumber())
 	ms.Body().CopyTo(dest.Body())
