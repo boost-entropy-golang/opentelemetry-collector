@@ -2,6 +2,8 @@
 
 ## Unreleased
 - Fix reading resource attributes for trace JSON, remove duplicate code. (#6023)
+- Add support to unmarshalls bytes into plogs.Logs with `jsoniter` in jsonUnmarshaler(#5935)
+
 
 ### 🛑 Breaking changes 🛑
 
@@ -18,15 +20,13 @@
 
 ### 🚩 Deprecations 🚩
 
+- Deprecate `p[metric|log|trace].MarshalerSizer` in favor of `p[metric|log|trace].MarshalSizer`. (#6033)
 - Deprecate `pcommon.Map.Update+` in favor of `pcommon.Map.Get` + `pcommon.Value.Set+` (#6013)
 - Deprecate `pcommon.Empty[Trace|Span]ID` in favor of `pcommon.New[Trace|Span]IDEmpty` (#6008)
 - Deprecate `pcommon.[Trace|Span]ID.Bytes` in favor direct conversion. (#6008)
 - Deprecate `pcommon.New[Trace|Span]ID` in favor direct conversion. (#6008)
 - Deprecate `MetricDataPointFlagsImmutable` type. (#6017)
 - Deprecate `*DataPoint.[Set]FlagsImmutable()` funcs in favor of `*DataPoint.[Set]Flags()`. (#6017)
-
-### 🚩 Deprecations 🚩
-
 - Deprecate `LogRecord.FlagsStruct()` and `LogRecord.SetFlagsStruct()` in favor of `LogRecord.Flags()` and `LogRecord.SetFlags()`. (#6007)
 
 ### 💡 Enhancements 💡
