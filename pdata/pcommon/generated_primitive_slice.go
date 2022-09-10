@@ -61,15 +61,24 @@ func (ms ByteSlice) SetAt(i int, val byte) {
 	(*ms.getOrig())[i] = val
 }
 
+// MoveTo moves ByteSlice to another instance.
+func (ms ByteSlice) MoveTo(dest ByteSlice) {
+	*dest.getOrig() = *ms.getOrig()
+	*ms.getOrig() = nil
+}
+
+// CopyTo copies ByteSlice to another instance.
+func (ms ByteSlice) CopyTo(dest ByteSlice) {
+	*dest.getOrig() = copyByteSlice(*ms.getOrig())
+}
+
 func copyByteSlice(from []byte) []byte {
 	if len(from) == 0 {
 		return nil
 	}
 
 	to := make([]byte, len(from))
-	for i := range from {
-		to[i] = from[i]
-	}
+	copy(to, from)
 	return to
 }
 
@@ -115,15 +124,24 @@ func (ms Float64Slice) SetAt(i int, val float64) {
 	(*ms.getOrig())[i] = val
 }
 
+// MoveTo moves Float64Slice to another instance.
+func (ms Float64Slice) MoveTo(dest Float64Slice) {
+	*dest.getOrig() = *ms.getOrig()
+	*ms.getOrig() = nil
+}
+
+// CopyTo copies Float64Slice to another instance.
+func (ms Float64Slice) CopyTo(dest Float64Slice) {
+	*dest.getOrig() = copyFloat64Slice(*ms.getOrig())
+}
+
 func copyFloat64Slice(from []float64) []float64 {
 	if len(from) == 0 {
 		return nil
 	}
 
 	to := make([]float64, len(from))
-	for i := range from {
-		to[i] = from[i]
-	}
+	copy(to, from)
 	return to
 }
 
@@ -169,14 +187,23 @@ func (ms UInt64Slice) SetAt(i int, val uint64) {
 	(*ms.getOrig())[i] = val
 }
 
+// MoveTo moves UInt64Slice to another instance.
+func (ms UInt64Slice) MoveTo(dest UInt64Slice) {
+	*dest.getOrig() = *ms.getOrig()
+	*ms.getOrig() = nil
+}
+
+// CopyTo copies UInt64Slice to another instance.
+func (ms UInt64Slice) CopyTo(dest UInt64Slice) {
+	*dest.getOrig() = copyUInt64Slice(*ms.getOrig())
+}
+
 func copyUInt64Slice(from []uint64) []uint64 {
 	if len(from) == 0 {
 		return nil
 	}
 
 	to := make([]uint64, len(from))
-	for i := range from {
-		to[i] = from[i]
-	}
+	copy(to, from)
 	return to
 }
