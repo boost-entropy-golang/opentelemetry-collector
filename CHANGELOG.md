@@ -37,11 +37,13 @@
   - Temporarily deprecate `pcommon.NewValueBytes` that will be replaced with `pcommon.NewValueBytesEmpty` in 0.60.0
   - Deprecate `pcommon.Map.UpsertBytes` in favor of `pcommon.Map.UpsertEmptyBytes`
   - Deprecate `pcommon.Value.SetBytesVal` in favor of `pcommon.Value.SetEmptyBytesVal`
+  - Deprecate `pcommon.New[Slice|Map]FromRaw` functions in favor of `New[Slice|Map]().FromRaw` (#6045)
 
 ### 💡 Enhancements 💡
 
 - Add `skip-get-modules` builder flag to support isolated environment executions (#6009)
   - Skip unnecessary Go binary path validation when the builder is used with `skip-compilation` and `skip-get-modules` flags (#6026)
+- Make the otlpreceiver support to use jsoniter to unmarshal JSON payloads. (#6040)
 - Add mapstructure hook function for confmap.Unmarshaler interface (#6029)
 - Add CopyTo and MoveTo methods to primitive slices (#6044)
 

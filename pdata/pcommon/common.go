@@ -140,52 +140,46 @@ func (v Value) getOrig() *otlpcommon.AnyValue {
 	return internal.GetOrigValue(internal.Value(v))
 }
 
-func newValueFromRaw(iv interface{}) Value {
+func (v Value) fromRaw(iv interface{}) {
 	switch tv := iv.(type) {
 	case nil:
-		return NewValueEmpty()
+		v.getOrig().Value = nil
 	case string:
-		return NewValueString(tv)
+		v.SetStringVal(tv)
 	case int:
-		return NewValueInt(int64(tv))
+		v.SetIntVal(int64(tv))
 	case int8:
-		return NewValueInt(int64(tv))
+		v.SetIntVal(int64(tv))
 	case int16:
-		return NewValueInt(int64(tv))
+		v.SetIntVal(int64(tv))
 	case int32:
-		return NewValueInt(int64(tv))
+		v.SetIntVal(int64(tv))
 	case int64:
-		return NewValueInt(tv)
+		v.SetIntVal(tv)
 	case uint:
-		return NewValueInt(int64(tv))
+		v.SetIntVal(int64(tv))
 	case uint8:
-		return NewValueInt(int64(tv))
+		v.SetIntVal(int64(tv))
 	case uint16:
-		return NewValueInt(int64(tv))
+		v.SetIntVal(int64(tv))
 	case uint32:
-		return NewValueInt(int64(tv))
+		v.SetIntVal(int64(tv))
 	case uint64:
-		return NewValueInt(int64(tv))
+		v.SetIntVal(int64(tv))
 	case float32:
-		return NewValueDouble(float64(tv))
+		v.SetDoubleVal(float64(tv))
 	case float64:
-		return NewValueDouble(tv)
+		v.SetDoubleVal(tv)
 	case bool:
-		return NewValueBool(tv)
+		v.SetBoolVal(tv)
 	case []byte:
-		bv := NewValueBytesEmpty()
-		bv.BytesVal().FromRaw(tv)
-		return bv
+		v.SetEmptyBytesVal().FromRaw(tv)
 	case map[string]interface{}:
-		mv := NewValueMap()
-		NewMapFromRaw(tv).CopyTo(mv.MapVal())
-		return mv
+		v.SetEmptyMapVal().FromRaw(tv)
 	case []interface{}:
-		av := NewValueSlice()
-		NewSliceFromRaw(tv).CopyTo(av.SliceVal())
-		return av
+		v.SetEmptySliceVal().FromRaw(tv)
 	default:
-		return NewValueString(fmt.Sprintf("<Invalid value type %T>", tv))
+		v.SetStringVal(fmt.Sprintf("<Invalid value type %T>", tv))
 	}
 }
 
@@ -596,19 +590,11 @@ func (m Map) getOrig() *[]otlpcommon.KeyValue {
 }
 
 // NewMapFromRaw creates a Map with values from the given map[string]interface{}.
+// Deprecated: [0.60.0] Use NewMap().FromRaw instead
 func NewMapFromRaw(rawMap map[string]interface{}) Map {
-	if len(rawMap) == 0 {
-		kv := []otlpcommon.KeyValue(nil)
-		return newMap(&kv)
-	}
-	origs := make([]otlpcommon.KeyValue, len(rawMap))
-	ix := 0
-	for k, iv := range rawMap {
-		origs[ix].Key = k
-		newValueFromRaw(iv).copyTo(&origs[ix].Value)
-		ix++
-	}
-	return Map(internal.NewMap(&origs))
+	ret := NewMap()
+	ret.FromRaw(rawMap)
+	return ret
 }
 
 func newMap(orig *[]otlpcommon.KeyValue) Map {
@@ -976,26 +962,50 @@ func (m Map) AsRaw() map[string]interface{} {
 	return rawMap
 }
 
-// NewSliceFromRaw creates a Slice with values from the given []interface{}.
-func NewSliceFromRaw(rawSlice []interface{}) Slice {
-	if len(rawSlice) == 0 {
-		v := []otlpcommon.AnyValue(nil)
-		return newSlice(&v)
+func (m Map) FromRaw(rawMap map[string]interface{}) {
+	if len(rawMap) == 0 {
+		*m.getOrig() = nil
+		return
 	}
-	origs := make([]otlpcommon.AnyValue, len(rawSlice))
-	for ix, iv := range rawSlice {
-		newValueFromRaw(iv).copyTo(&origs[ix])
+
+	origs := make([]otlpcommon.KeyValue, len(rawMap))
+	ix := 0
+	for k, iv := range rawMap {
+		origs[ix].Key = k
+		newValue(&origs[ix].Value).fromRaw(iv)
+		ix++
 	}
-	return newSlice(&origs)
+	*m.getOrig() = origs
 }
 
-// AsRaw converts the Slice to a standard go slice.
+// NewSliceFromRaw creates a Slice with values from the given []interface{}.
+// Deprecated: [0.60.0] Use NewSlice().FromRaw instead.
+func NewSliceFromRaw(rawSlice []interface{}) Slice {
+	ret := NewSlice()
+	ret.FromRaw(rawSlice)
+	return ret
+}
+
+// AsRaw return []interface{} copy of the Slice.
 func (es Slice) AsRaw() []interface{} {
 	rawSlice := make([]interface{}, 0, es.Len())
 	for i := 0; i < es.Len(); i++ {
 		rawSlice = append(rawSlice, es.At(i).asRaw())
 	}
 	return rawSlice
+}
+
+// FromRaw copies []interface{} into the Slice.
+func (es Slice) FromRaw(rawSlice []interface{}) {
+	if len(rawSlice) == 0 {
+		*es.getOrig() = nil
+		return
+	}
+	origs := make([]otlpcommon.AnyValue, len(rawSlice))
+	for ix, iv := range rawSlice {
+		newValue(&origs[ix]).fromRaw(iv)
+	}
+	*es.getOrig() = origs
 }
 
 // Deprecated: [0.60.0] Use ByteSlice instead.
