@@ -1,9 +1,6 @@
 # Changelog
 
 ## Unreleased
-- Fix reading resource attributes for trace JSON, remove duplicate code. (#6023)
-- Add support to unmarshalls bytes into plogs.Logs with `jsoniter` in jsonUnmarshaler(#5935)
-
 
 ### 🛑 Breaking changes 🛑
 
@@ -47,10 +44,13 @@
 - Make the otlpreceiver support to use jsoniter to unmarshal JSON payloads. (#6040)
 - Add mapstructure hook function for confmap.Unmarshaler interface (#6029)
 - Add CopyTo and MoveTo methods to primitive slices (#6044)
+- Add support to unmarshalls bytes into plogs.Logs with `jsoniter` in jsonUnmarshaler (#6021)
+- Instead of exiting, `ocb` now generates a default Collector when no build configuration is supplied (#5752)
 
 ### 🧰 Bug fixes 🧰
 
 - otlpjson: Correctly skip unknown JSON value types. (#6038)
+- Fix reading resource attributes from trace JSON. (#6023)
 
 ## v0.59.0 Beta
 
@@ -95,6 +95,12 @@
   - `SummaryDataPoint.Flags` -> `SummaryDataPoint.FlagsImmutable`
   - `MetricDataPointFlags` -> `MetricDataPointFlagsImmutable`
   - `NewMetricDataPointFlags` -> `MetricDataPointFlagsImmutable`
+- Deprecate `ptrace.TraceState` in favor of `pcommon.TraceState`. (#6052)
+  - `ptrace.Span.TraceState` in favor of `ptrace.Span.TraceStateStruct().AsRaw()`
+  - `ptrace.Span.SetTraceState` in favor of `ptrace.Span.TraceStateStruct().FromRaw`
+  - `ptrace.SpanLink.TraceState` in favor of `ptrace.SpanLink.TraceStateStruct().AsRaw()`
+  - `ptrace.SpanLink.SetTraceState` in favor of `ptrace.SpanLink.TraceStateStruct().FromRaw`
+  - `TraceStateStruct` is a temporary name that will be replaced back to `TraceState` in the next release.
 
 ### 💡 Enhancements 💡
 
