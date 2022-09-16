@@ -4,8 +4,26 @@
 
 ### 🛑 Breaking changes 🛑
 
+- Delete deprecated `pmetric.NewMetricDataPointFlagsImmutable` func. (#6097)
+- Delete deprecated `pmetric.*DataPoint.[Set]FlagsImmutable()` funcs. (#6097)
 - Delete deprecated `config.Unmarshalable` interface. (#6084)
 - Delete deprecated `p[metric|log|trace].MarshalerSizer` interfaces (#6083)
+- Delete deprecated `pcommon.Map.Insert*` funcs. (#6088)
+- Delete deprecated `pcommon.Map.Upsert*` funcs. (#6088)
+- Delete deprecated `pcommon.Map.Update*` funcs. (#6088)
+- Delete deprecated `pcommon.Map.Update*` funcs. (#6088)
+- Replace `pcommon.NewValueBytes` with `pcommon.NewValueBytesEmpty`. (#6088)
+- Delete deprecated `pcommon.Value.SetBytesVal`. (#6088)
+- Delete deprecated `pmetric.Metric.SetDataType`. (#6095)
+
+### 🚩 Deprecations 🚩
+
+- Deprecate pmetric.OptionalType, unused enum type. (#6096)
+
+### 💡 Enhancements 💡
+
+- Add AppendEmpty and EnsureCapacity method to primitive pdata slices (#6060)
+- Expose `AsRaw` and `FromRaw` `pcommon.Value` methods (#6090)
 
 ## v0.60.0 Beta
 
