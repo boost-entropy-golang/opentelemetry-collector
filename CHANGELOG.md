@@ -11,14 +11,20 @@
 - Delete deprecated `pcommon.Map.Insert*` funcs. (#6088)
 - Delete deprecated `pcommon.Map.Upsert*` funcs. (#6088)
 - Delete deprecated `pcommon.Map.Update*` funcs. (#6088)
-- Delete deprecated `pcommon.Map.Update*` funcs. (#6088)
-- Replace `pcommon.NewValueBytes` with `pcommon.NewValueBytesEmpty`. (#6088)
+- Change `pcommon.NewValueBytes` signature to match `pcommon.NewValueBytesEmpty`. (#6088)
 - Delete deprecated `pcommon.Value.SetBytesVal`. (#6088)
 - Delete deprecated `pmetric.Metric.SetDataType`. (#6095)
+- Delete deprecated `plog.LogRecord.[Set]FlagStruct` funcs. (#6100)
+- Delete deprecated `pcommon.ImmutableByteSlice` and `pcommon.NewImmutableByteSlice`. (#6107)
+- Delete deprecated `pcommon.ImmutableFloat64Slice` and `pcommon.NewImmutableFloat64Slice`. (#6107)
+- Delete deprecated `pcommon.ImmutableUInt64Slice` and `pcommon.NewImmutableUInt64Slice`. (#6107)
+- Delete deprecated `*DataPoint.SetBucketCounts` and `*DataPoint.SetExplicitBounds`. (#6108)
 
 ### 🚩 Deprecations 🚩
 
+- Deprecate `go.opentelemetry.io/collector/service/featuregate` in favor of `go.opentelemetry.io/collector/featuregate`. (#6094)
 - Deprecate pmetric.OptionalType, unused enum type. (#6096)
+- Deprecate `pcommon.NewValueBytesEmpty` in favor of `pcommon.NewValueBytes` that now has the same signature. (#6105)
 
 ### 💡 Enhancements 💡
 
