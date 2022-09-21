@@ -64,29 +64,29 @@ func (b *dataBuffer) logMetricDescriptor(md pmetric.Metric) {
 	b.logEntry("     -> Name: %s", md.Name())
 	b.logEntry("     -> Description: %s", md.Description())
 	b.logEntry("     -> Unit: %s", md.Unit())
-	b.logEntry("     -> DataType: %s", md.DataType().String())
+	b.logEntry("     -> DataType: %s", md.Type().String())
 }
 
 func (b *dataBuffer) logMetricDataPoints(m pmetric.Metric) {
-	switch m.DataType() {
-	case pmetric.MetricDataTypeNone:
+	switch m.Type() {
+	case pmetric.MetricTypeNone:
 		return
-	case pmetric.MetricDataTypeGauge:
+	case pmetric.MetricTypeGauge:
 		b.logNumberDataPoints(m.Gauge().DataPoints())
-	case pmetric.MetricDataTypeSum:
+	case pmetric.MetricTypeSum:
 		data := m.Sum()
 		b.logEntry("     -> IsMonotonic: %t", data.IsMonotonic())
 		b.logEntry("     -> AggregationTemporality: %s", data.AggregationTemporality().String())
 		b.logNumberDataPoints(data.DataPoints())
-	case pmetric.MetricDataTypeHistogram:
+	case pmetric.MetricTypeHistogram:
 		data := m.Histogram()
 		b.logEntry("     -> AggregationTemporality: %s", data.AggregationTemporality().String())
 		b.logHistogramDataPoints(data.DataPoints())
-	case pmetric.MetricDataTypeExponentialHistogram:
+	case pmetric.MetricTypeExponentialHistogram:
 		data := m.ExponentialHistogram()
 		b.logEntry("     -> AggregationTemporality: %s", data.AggregationTemporality().String())
 		b.logExponentialHistogramDataPoints(data.DataPoints())
-	case pmetric.MetricDataTypeSummary:
+	case pmetric.MetricTypeSummary:
 		data := m.Summary()
 		b.logDoubleSummaryDataPoints(data.DataPoints())
 	}
@@ -257,7 +257,7 @@ func (b *dataBuffer) logLinks(description string, sl ptrace.SpanLinkSlice) {
 		b.logEntry("SpanLink #%d", i)
 		b.logEntry("     -> Trace ID: %s", l.TraceID().HexString())
 		b.logEntry("     -> ID: %s", l.SpanID().HexString())
-		b.logEntry("     -> TraceState: %s", l.TraceStateStruct().AsRaw())
+		b.logEntry("     -> TraceState: %s", l.TraceState().AsRaw())
 		b.logEntry("     -> DroppedAttributesCount: %d", l.DroppedAttributesCount())
 		if l.Attributes().Len() == 0 {
 			continue
