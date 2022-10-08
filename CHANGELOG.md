@@ -34,6 +34,8 @@
 - Deprecate `p[metric|log|trace]otlp.RegiserServer` in favor of `p[metric|log|trace]otlp.RegiserGRPCServer` (#6180)
 - Deprecate `pcommon.Map.PutString` in favor of `pcommon.Map.PutStr` (#6210)
 - Deprecate `pcommon.NewValueString` in favor of `pcommon.NewValueStr` (#6209)
+- Deprecate `pmetric.MetricAggregationTemporality` enum type in favor of `pmetric.AggregationTemporality` (#6249)
+- Deprecate `confmap.Conf.UnmarshalExact` in favor of `confmap.Conf.Unmarshal(.., WithErrorUnused)` (#6231)
 
 ### 💡 Enhancements 💡
 
@@ -42,6 +44,10 @@
 - `receiver/otlp`: Make logs related to gRCPC and HTTP server startup clearer (#6174)
 - Add prometheus metric prefix and constant service attributes to Collector's own telemetry when using OpenTelemetry for internal telemetry (#6223)
 - `exporter/logging`: Apply consistent rendering of map values (#6244)
+
+### 🧰 Bug fixes 🧰
+
+- Fixed bug where `telemetryInitializer` is not cleaned up when `newService` errors (#6239)
 
 ## v0.61.0 Beta
 
