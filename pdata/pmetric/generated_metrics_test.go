@@ -475,7 +475,7 @@ func TestMetric_Unit(t *testing.T) {
 
 func TestMetric_Type(t *testing.T) {
 	tv := NewMetric()
-	assert.Equal(t, MetricTypeNone, tv.Type())
+	assert.Equal(t, MetricTypeEmpty, tv.Type())
 }
 
 func TestMetric_Gauge(t *testing.T) {
@@ -862,7 +862,7 @@ func TestNumberDataPoint_Timestamp(t *testing.T) {
 
 func TestNumberDataPoint_ValueType(t *testing.T) {
 	tv := NewNumberDataPoint()
-	assert.Equal(t, NumberDataPointValueTypeNone, tv.ValueType())
+	assert.Equal(t, NumberDataPointValueTypeEmpty, tv.ValueType())
 }
 
 func TestNumberDataPoint_DoubleValue(t *testing.T) {
@@ -890,8 +890,8 @@ func TestNumberDataPoint_Exemplars(t *testing.T) {
 
 func TestNumberDataPoint_Flags(t *testing.T) {
 	ms := NewNumberDataPoint()
-	assert.Equal(t, MetricDataPointFlags(0), ms.Flags())
-	testValFlags := MetricDataPointFlags(1)
+	assert.Equal(t, DataPointFlags(0), ms.Flags())
+	testValFlags := DataPointFlags(1)
 	ms.SetFlags(testValFlags)
 	assert.Equal(t, testValFlags, ms.Flags())
 }
@@ -1084,8 +1084,8 @@ func TestHistogramDataPoint_Exemplars(t *testing.T) {
 
 func TestHistogramDataPoint_Flags(t *testing.T) {
 	ms := NewHistogramDataPoint()
-	assert.Equal(t, MetricDataPointFlags(0), ms.Flags())
-	testValFlags := MetricDataPointFlags(1)
+	assert.Equal(t, DataPointFlags(0), ms.Flags())
+	testValFlags := DataPointFlags(1)
 	ms.SetFlags(testValFlags)
 	assert.Equal(t, testValFlags, ms.Flags())
 }
@@ -1304,8 +1304,8 @@ func TestExponentialHistogramDataPoint_Exemplars(t *testing.T) {
 
 func TestExponentialHistogramDataPoint_Flags(t *testing.T) {
 	ms := NewExponentialHistogramDataPoint()
-	assert.Equal(t, MetricDataPointFlags(0), ms.Flags())
-	testValFlags := MetricDataPointFlags(1)
+	assert.Equal(t, DataPointFlags(0), ms.Flags())
+	testValFlags := DataPointFlags(1)
 	ms.SetFlags(testValFlags)
 	assert.Equal(t, testValFlags, ms.Flags())
 }
@@ -1530,8 +1530,8 @@ func TestSummaryDataPoint_QuantileValues(t *testing.T) {
 
 func TestSummaryDataPoint_Flags(t *testing.T) {
 	ms := NewSummaryDataPoint()
-	assert.Equal(t, MetricDataPointFlags(0), ms.Flags())
-	testValFlags := MetricDataPointFlags(1)
+	assert.Equal(t, DataPointFlags(0), ms.Flags())
+	testValFlags := DataPointFlags(1)
 	ms.SetFlags(testValFlags)
 	assert.Equal(t, testValFlags, ms.Flags())
 }
@@ -1807,7 +1807,7 @@ func TestExemplar_Timestamp(t *testing.T) {
 
 func TestExemplar_ValueType(t *testing.T) {
 	tv := NewExemplar()
-	assert.Equal(t, ExemplarValueTypeNone, tv.ValueType())
+	assert.Equal(t, ExemplarValueTypeEmpty, tv.ValueType())
 }
 
 func TestExemplar_DoubleValue(t *testing.T) {
