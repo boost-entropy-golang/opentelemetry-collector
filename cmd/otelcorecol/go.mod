@@ -10,6 +10,8 @@ require (
 	go.opentelemetry.io/collector/exporter/loggingexporter v0.63.1
 	go.opentelemetry.io/collector/exporter/otlpexporter v0.63.1
 	go.opentelemetry.io/collector/exporter/otlphttpexporter v0.63.1
+	go.opentelemetry.io/collector/extension/ballastextension v0.63.1
+	go.opentelemetry.io/collector/extension/zpagesextension v0.63.1
 	go.opentelemetry.io/collector/receiver/otlpreceiver v0.63.1
 	golang.org/x/sys v0.1.0
 )
@@ -51,7 +53,7 @@ require (
 	github.com/prometheus/procfs v0.8.0 // indirect
 	github.com/prometheus/statsd_exporter v0.22.7 // indirect
 	github.com/rs/cors v1.8.2 // indirect
-	github.com/shirou/gopsutil/v3 v3.22.9 // indirect
+	github.com/shirou/gopsutil/v3 v3.22.10 // indirect
 	github.com/spf13/cobra v1.6.1 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/tklauser/go-sysconf v0.3.10 // indirect
@@ -89,6 +91,10 @@ replace go.opentelemetry.io/collector/exporter/loggingexporter => ../../exporter
 replace go.opentelemetry.io/collector/exporter/otlpexporter => ../../exporter/otlpexporter
 
 replace go.opentelemetry.io/collector/exporter/otlphttpexporter => ../../exporter/otlphttpexporter
+
+replace go.opentelemetry.io/collector/extension/ballastextension => ../../extension/ballastextension
+
+replace go.opentelemetry.io/collector/extension/zpagesextension => ../../extension/zpagesextension
 
 replace go.opentelemetry.io/collector/semconv => ../../semconv
 
