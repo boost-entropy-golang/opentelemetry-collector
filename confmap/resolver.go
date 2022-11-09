@@ -20,7 +20,6 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
-	"sync"
 
 	"go.uber.org/multierr"
 
@@ -29,7 +28,7 @@ import (
 
 var (
 	// follows drive-letter specification:
-	// https://tools.ietf.org/id/draft-kerwin-file-scheme-07.html#syntax
+	// https://datatracker.ietf.org/doc/html/draft-kerwin-file-scheme-07.html#section-2.2
 	driverLetterRegexp = regexp.MustCompile("^[A-z]:")
 
 	// Scheme name consist of a sequence of characters beginning with a letter and followed by any
@@ -46,7 +45,7 @@ func init() {
 	// TODO: Remove this if by v0.64.0 no complains from distros.
 	featuregate.GetRegistry().MustRegisterID(
 		expandEnabled,
-		featuregate.Beta,
+		featuregate.StageBeta,
 		featuregate.WithRegisterDescription("controls whether expending embedded external config providers URIs"),
 	)
 }
@@ -57,7 +56,6 @@ type Resolver struct {
 	providers  map[string]Provider
 	converters []Converter
 
-	sync.Mutex
 	closers []CloseFunc
 	watcher chan error
 }
