@@ -24,42 +24,29 @@ import (
 func TestRegistry(t *testing.T) {
 	r := Registry{gates: map[string]Gate{}}
 
-	gate := Gate{
-		ID:          "foo",
-		Description: "Test Gate",
-		Enabled:     true,
-	}
+	id := "foo"
 
 	assert.Empty(t, r.List())
-	assert.False(t, r.IsEnabled(gate.ID))
+	assert.False(t, r.IsEnabled(id))
 
-	assert.NoError(t, r.Register(gate))
+	assert.NoError(t, r.RegisterID(id, StageBeta, WithRegisterDescription("Test Gate")))
 	assert.Len(t, r.List(), 1)
-	assert.True(t, r.IsEnabled(gate.ID))
+	assert.True(t, r.IsEnabled(id))
 
-	assert.NoError(t, r.Apply(map[string]bool{gate.ID: false}))
-	assert.False(t, r.IsEnabled(gate.ID))
+	assert.NoError(t, r.Apply(map[string]bool{id: false}))
+	assert.False(t, r.IsEnabled(id))
 
-	assert.Error(t, r.Register(gate))
+	assert.Error(t, r.RegisterID(id, StageBeta))
 	assert.Panics(t, func() {
-		r.MustRegister(gate)
+		r.MustRegisterID(id, StageBeta)
 	})
 }
 
 func TestRegistryWithErrorApply(t *testing.T) {
 	r := Registry{gates: map[string]Gate{}}
 
-	assert.NoError(t, r.Register(Gate{
-		ID:          "foo",
-		Description: "Test Gate",
-		stage:       StageAlpha,
-	}))
-	assert.NoError(t, r.Register(Gate{
-		ID:             "stable-foo",
-		Description:    "Test Gate",
-		stage:          StageStable,
-		removalVersion: "next",
-	}))
+	assert.NoError(t, r.RegisterID("foo", StageAlpha, WithRegisterDescription("Test Gate")))
+	assert.NoError(t, r.RegisterID("stable-foo", StageStable, WithRegisterDescription("Test Gate"), WithRegisterRemovalVersion("next")))
 
 	tests := []struct {
 		name        string
@@ -176,34 +163,5 @@ func TestRegisterGateLifecycle(t *testing.T) {
 			assert.NoError(t, r.RegisterID(tc.id, tc.stage, tc.opts...), "Must not error when registering feature gate")
 			assert.Equal(t, tc.enabled, r.IsEnabled(tc.id), "Must match the expected enabled value")
 		})
-	}
-}
-
-func TestGateMethods(t *testing.T) {
-	g := &Gate{
-		ID:             "test",
-		Description:    "test gate",
-		Enabled:        false,
-		stage:          StageAlpha,
-		referenceURL:   "http://example.com",
-		removalVersion: "v0.64.0",
-	}
-
-	assert.Equal(t, "test", g.GetID())
-	assert.Equal(t, "test gate", g.GetDescription())
-	assert.Equal(t, false, g.IsEnabled())
-	assert.Equal(t, StageAlpha, g.Stage())
-	assert.Equal(t, "http://example.com", g.ReferenceURL())
-	assert.Equal(t, "v0.64.0", g.RemovalVersion())
-}
-
-func TestStageNames(t *testing.T) {
-	for expected, s := range map[string]Stage{
-		"StageAlpha":  StageAlpha,
-		"StageBeta":   StageBeta,
-		"StageStable": StageStable,
-		"unknown":     Stage(-1),
-	} {
-		assert.Equal(t, expected, s.String())
 	}
 }
