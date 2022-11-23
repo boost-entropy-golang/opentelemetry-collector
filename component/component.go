@@ -104,6 +104,7 @@ const (
 	KindProcessor
 	KindExporter
 	KindExtension
+	KindConnector
 )
 
 // StabilityLevel represents the stability level of the component created by the factory.
@@ -121,9 +122,6 @@ const (
 	StabilityLevelBeta
 	StabilityLevelStable
 )
-
-// Deprecated: [0.65.0] Use StabilityLevelDevelopment instead.
-const StabilityLevelInDevelopment = StabilityLevelDevelopment
 
 func (sl StabilityLevel) String() string {
 	switch sl {
