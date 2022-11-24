@@ -35,3 +35,58 @@ type CreateSettings struct {
 	// BuildInfo can be used by components for informational purposes
 	BuildInfo component.BuildInfo
 }
+
+// Factory is factory interface for connectors.
+//
+// This interface cannot be directly implemented. Implementations must
+// use the NewFactory to implement it.
+type Factory interface {
+	component.Factory
+}
+
+// FactoryOption applies changes to Factory.
+type FactoryOption interface {
+	// apply applies the option.
+	apply(o *factory)
+}
+
+var _ FactoryOption = (*factoryOptionFunc)(nil)
+
+// factoryOptionFunc is an FactoryOption created through a function.
+type factoryOptionFunc func(*factory)
+
+func (f factoryOptionFunc) apply(o *factory) {
+	f(o)
+}
+
+// factory implements Factory.
+type factory struct {
+	component.Factory
+	cfgType component.Type
+	component.CreateDefaultConfigFunc
+}
+
+var _ Factory = (*factory)(nil)
+
+// Type returns the type of component.
+func (f *factory) Type() component.Type {
+	return f.cfgType
+}
+
+// CreateDefaultConfig creates the default configuration for the Component.
+// TODO: Remove this when we remove the private func from component.Factory and add it to every specialized Factory.
+func (f *factory) CreateDefaultConfig() component.Config {
+	return f.CreateDefaultConfigFunc()
+}
+
+// NewFactory returns a Factory.
+func NewFactory(cfgType component.Type, createDefaultConfig component.CreateDefaultConfigFunc, options ...FactoryOption) Factory {
+	f := &factory{
+		cfgType:                 cfgType,
+		CreateDefaultConfigFunc: createDefaultConfig,
+	}
+	for _, opt := range options {
+		opt.apply(f)
+	}
+	return f
+}
