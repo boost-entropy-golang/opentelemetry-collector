@@ -12,29 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package config // import "go.opentelemetry.io/collector/config"
-
-import (
-	"go.opentelemetry.io/collector/component"
-)
-
-type settings struct {
-	id component.ID `mapstructure:"-"`
-	component.Config
-}
-
-func newSettings(id component.ID) settings {
-	return settings{id: id}
-}
-
-var _ component.Config = (*settings)(nil)
-
-// Deprecated: [v0.67.0] use Settings.ID.
-func (es *settings) ID() component.ID {
-	return es.id
-}
-
-// Deprecated: [v0.67.0] use Settings.ID.
-func (es *settings) SetIDName(idName string) {
-	es.id = component.NewIDWithName(es.id.Type(), idName)
-}
+// Package auth implements the configuration settings to
+// ensure authentication on incoming requests, and allows
+// exporters to add authentication on outgoing requests.
+package auth // import "go.opentelemetry.io/collector/extension/auth"
