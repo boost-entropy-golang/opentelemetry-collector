@@ -12,6 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package builder handles the options to build the OpenTelemetry collector
-// pipeline.
-package builder // import "go.opentelemetry.io/collector/service/internal/builder"
+package configopaque // import "go.opentelemetry.io/collector/config/configopaque"
+
+import (
+	"bytes"
+	"encoding"
+)
+
+// String alias that is marshaled in an opaque way.
+type String string
+
+var _ encoding.TextMarshaler = String("")
+
+// MarshalText marshals into a string of '*' of length equal to the opaque string.
+func (s String) MarshalText() ([]byte, error) {
+	return bytes.Repeat([]byte("*"), len(s)), nil
+}

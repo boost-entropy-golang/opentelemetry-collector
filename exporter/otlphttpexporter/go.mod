@@ -6,10 +6,11 @@ require (
 	github.com/stretchr/testify v1.8.1
 	go.opentelemetry.io/collector v0.66.0
 	go.opentelemetry.io/collector/component v0.66.0
+	go.opentelemetry.io/collector/confmap v0.0.0-20221201172708-2bdff61fa52a
 	go.opentelemetry.io/collector/consumer v0.66.0
 	go.opentelemetry.io/collector/pdata v0.66.0
 	go.opentelemetry.io/collector/receiver/otlpreceiver v0.66.0
-	go.uber.org/zap v1.23.0
+	go.uber.org/zap v1.24.0
 	google.golang.org/genproto v0.0.0-20221027153422-115e99e71e1c
 	google.golang.org/grpc v1.51.0
 	google.golang.org/protobuf v1.28.1
@@ -53,6 +54,8 @@ require (
 replace go.opentelemetry.io/collector => ../../
 
 replace go.opentelemetry.io/collector/component => ../../component
+
+replace go.opentelemetry.io/collector/confmap => ../../confmap
 
 replace go.opentelemetry.io/collector/featuregate => ../../featuregate
 

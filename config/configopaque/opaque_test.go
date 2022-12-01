@@ -12,19 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package config // import "go.opentelemetry.io/collector/config"
+package configopaque // import "go.opentelemetry.io/collector/config/configopaque"
 
 import (
-	"go.opentelemetry.io/collector/component"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
-// Pipeline defines a single pipeline.
-// Deprecated: [v0.52.0] Use service.ConfigServicePipeline
-type Pipeline struct {
-	Receivers  []component.ID `mapstructure:"receivers"`
-	Processors []component.ID `mapstructure:"processors"`
-	Exporters  []component.ID `mapstructure:"exporters"`
-}
+func TestStringMarshalText(t *testing.T) {
+	var example String = "opaque"
 
-// Deprecated: [v0.52.0] will be removed soon.
-type Pipelines = map[component.ID]*Pipeline
+	opaque, err := example.MarshalText()
+	require.NoError(t, err)
+	assert.Equal(t, "******", string(opaque))
+}
