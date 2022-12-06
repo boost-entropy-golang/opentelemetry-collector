@@ -21,8 +21,6 @@ import (
 // ConnectorSettings defines common settings for a component.Connector configuration.
 // Specific connectors can embed this struct and extend it with more fields if needed.
 //
-// It is highly recommended to "override" the Validate() function.
-//
 // When embedded in the exporter config, it must be with `mapstructure:",squash"` tag.
 type ConnectorSettings struct {
 	settings
@@ -34,13 +32,3 @@ func NewConnectorSettings(id component.ID) ConnectorSettings {
 }
 
 var _ component.Config = (*ConnectorSettings)(nil)
-
-// ID returns the connector ComponentID.
-func (cs *ConnectorSettings) ID() component.ID {
-	return cs.id
-}
-
-// SetIDName sets the connector name.
-func (cs *ConnectorSettings) SetIDName(idName string) {
-	cs.id = component.NewIDWithName(cs.id.Type(), idName)
-}
