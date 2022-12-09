@@ -12,14 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package servicetest // import "go.opentelemetry.io/collector/service/servicetest"
+package processortest // import "go.opentelemetry.io/collector/processor/processortest"
 
 import (
-	"go.opentelemetry.io/collector/otelcol/otelcoltest"
+	"go.opentelemetry.io/collector/component/componenttest"
 )
 
-// Deprecated: [v0.67.0] use otelcoltest.LoadConfig
-var LoadConfig = otelcoltest.LoadConfig
-
-// Deprecated: [v0.67.0] use otelcoltest.LoadConfigAndValidate
-var LoadConfigAndValidate = otelcoltest.LoadConfigAndValidate
+// VerifyShutdown verifies the processor doesn't produce telemetry data after shutdown.
+var VerifyShutdown = componenttest.VerifyProcessorShutdown // nolint:staticcheck

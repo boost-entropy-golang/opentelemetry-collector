@@ -12,7 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package configauth implements the configuration settings to
-// ensure authentication on incoming requests, and allows
-// exporters to add authentication on outgoing requests.
-package configauth // import "go.opentelemetry.io/collector/config/configauth"
+package processortest // import "go.opentelemetry.io/collector/processor/processortest"
+
+import (
+	"go.opentelemetry.io/collector/component/componenttest"
+)
+
+// NewNopCreateSettings returns a new nop settings for Create* functions.
+var NewNopCreateSettings = componenttest.NewNopProcessorCreateSettings //nolint:staticcheck
+
+// NewNopFactory returns a component.ProcessorFactory that constructs nop processors.
+var NewNopFactory = componenttest.NewNopProcessorFactory //nolint:staticcheck
