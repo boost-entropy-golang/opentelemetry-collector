@@ -154,7 +154,7 @@ func (tts *TestTelemetry) Shutdown(ctx context.Context) error {
 	return errs
 }
 
-// Deprecated: [v0.67.0] use SetupTelemetry.
+// Deprecated: [v0.68.0] use SetupTelemetry.
 var SetupTelemetryWithID = SetupTelemetry
 
 // SetupTelemetry does setup the testing environment to check the metrics recorded by receivers, producers or exporters.
@@ -185,7 +185,7 @@ func SetupTelemetry(id component.ID) (TestTelemetry, error) {
 	}
 	view.RegisterExporter(settings.ocExporter)
 
-	exp, err := otelprom.New(otelprom.WithRegisterer(promReg), otelprom.WithoutUnits())
+	exp, err := otelprom.New(otelprom.WithRegisterer(promReg), otelprom.WithoutUnits(), otelprom.WithoutScopeInfo())
 	if err != nil {
 		return settings, err
 	}
