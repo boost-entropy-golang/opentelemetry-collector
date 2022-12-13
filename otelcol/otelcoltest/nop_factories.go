@@ -12,13 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package otelcol handles the command-line, configuration, and runs the
-// OpenTelemetry Collector.
-package otelcol // import "go.opentelemetry.io/collector/otelcol"
+package otelcoltest // import "go.opentelemetry.io/collector/otelcol/otelcoltest"
 
-import (
-	"go.opentelemetry.io/collector/service"
-)
+import "go.opentelemetry.io/collector/component/componenttest"
 
-// Config defines the configuration for the various elements of collector or agent.
-type Config = service.Config //nolint:staticcheck
+// NopFactories returns a otelcol.Factories with all nop factories.
+var NopFactories = componenttest.NopFactories // nolint:staticcheck

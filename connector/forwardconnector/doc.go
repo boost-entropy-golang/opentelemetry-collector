@@ -12,12 +12,5 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package service // import "go.opentelemetry.io/collector/service"
-
-import (
-	"go.opentelemetry.io/collector/component"
-)
-
-// Factories struct holds in a single type all component factories that
-// can be handled by the Config.
-type Factories = component.Factories // nolint:staticcheck
+// Package forwardconnector passes signals from one pipeline to another.
+package forwardconnector // import "go.opentelemetry.io/collector/connector/forwardconnector"
