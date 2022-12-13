@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package configunmarshaler // import "go.opentelemetry.io/collector/service/internal/configunmarshaler"
+package configunmarshaler // import "go.opentelemetry.io/collector/otelcol/internal/configunmarshaler"
 
 import (
 	"reflect"
@@ -54,7 +54,6 @@ func (r *Receivers) Unmarshal(conf *confmap.Conf) error {
 
 		// Create the default config for this receiver.
 		receiverCfg := factory.CreateDefaultConfig()
-		receiverCfg.SetIDName(id.Name()) //nolint:staticcheck
 
 		// Now that the default config struct is created we can Unmarshal into it,
 		// and it will apply user-defined config on top of the default.

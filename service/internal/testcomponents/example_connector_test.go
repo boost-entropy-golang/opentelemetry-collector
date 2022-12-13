@@ -12,29 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package config // import "go.opentelemetry.io/collector/config"
+package testcomponents
 
 import (
-	"go.opentelemetry.io/collector/component"
+	"context"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+
+	"go.opentelemetry.io/collector/component/componenttest"
 )
 
-type settings struct {
-	id component.ID `mapstructure:"-"`
-	component.Config
-}
+func TestExampleConnector(t *testing.T) {
+	conn := &ExampleConnector{}
+	host := componenttest.NewNopHost()
+	assert.False(t, conn.Started)
+	assert.NoError(t, conn.Start(context.Background(), host))
+	assert.True(t, conn.Started)
 
-func newSettings(id component.ID) settings {
-	return settings{id: id}
-}
-
-var _ component.Config = (*settings)(nil)
-
-// Deprecated: [v0.67.0] use Settings.ID.
-func (es *settings) ID() component.ID {
-	return es.id
-}
-
-// Deprecated: [v0.67.0] use Settings.ID.
-func (es *settings) SetIDName(idName string) {
-	es.id = component.NewIDWithName(es.id.Type(), idName)
+	assert.False(t, conn.Stopped)
+	assert.NoError(t, conn.Shutdown(context.Background()))
+	assert.True(t, conn.Stopped)
 }

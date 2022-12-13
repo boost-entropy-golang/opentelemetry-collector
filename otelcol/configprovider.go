@@ -12,19 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package service // import "go.opentelemetry.io/collector/service"
+package otelcol // import "go.opentelemetry.io/collector/otelcol"
 
 import (
 	"context"
 	"fmt"
 
-	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/confmap"
 	"go.opentelemetry.io/collector/confmap/converter/expandconverter"
 	"go.opentelemetry.io/collector/confmap/provider/envprovider"
 	"go.opentelemetry.io/collector/confmap/provider/fileprovider"
 	"go.opentelemetry.io/collector/confmap/provider/httpprovider"
 	"go.opentelemetry.io/collector/confmap/provider/yamlprovider"
+	"go.opentelemetry.io/collector/service"
 )
 
 // ConfigProvider provides the service configuration.
@@ -37,13 +37,11 @@ import (
 //	cfgProvider.Watch() // wait for an event.
 //	// repeat Get/Watch cycle until it is time to shut down the Collector process.
 //	cfgProvider.Shutdown()
-//
-// Deprecated: [v0.67.0] use otelcol.ConfigProvider
 type ConfigProvider interface {
 	// Get returns the service configuration, or error otherwise.
 	//
 	// Should never be called concurrently with itself, Watch or Shutdown.
-	Get(ctx context.Context, factories component.Factories) (*Config, error)
+	Get(ctx context.Context, factories service.Factories) (*Config, error)
 
 	// Watch blocks until any configuration change was detected or an unrecoverable error
 	// happened during monitoring the configuration changes.
@@ -68,20 +66,9 @@ type configProvider struct {
 }
 
 // ConfigProviderSettings are the settings to configure the behavior of the ConfigProvider.
-// Deprecated: [v0.67.0] use otelcol.ConfigProviderSettings
 type ConfigProviderSettings struct {
 	// ResolverSettings are the settings to configure the behavior of the confmap.Resolver.
 	ResolverSettings confmap.ResolverSettings
-}
-
-func newDefaultConfigProviderSettings(uris []string) ConfigProviderSettings {
-	return ConfigProviderSettings{
-		ResolverSettings: confmap.ResolverSettings{
-			URIs:       uris,
-			Providers:  makeMapProvidersMap(fileprovider.New(), envprovider.New(), yamlprovider.New(), httpprovider.New()),
-			Converters: []confmap.Converter{expandconverter.New()},
-		},
-	}
 }
 
 // NewConfigProvider returns a new ConfigProvider that provides the service configuration:
@@ -90,7 +77,6 @@ func newDefaultConfigProviderSettings(uris []string) ConfigProviderSettings {
 //   - Then applies all the confmap.Converter in the given order.
 //
 // * Then unmarshalls the confmap.Conf into the service Config.
-// Deprecated: [v0.67.0] use otelcol.NewConfigProvider
 func NewConfigProvider(set ConfigProviderSettings) (ConfigProvider, error) {
 	mr, err := confmap.NewResolver(set.ResolverSettings)
 	if err != nil {
@@ -102,7 +88,7 @@ func NewConfigProvider(set ConfigProviderSettings) (ConfigProvider, error) {
 	}, nil
 }
 
-func (cm *configProvider) Get(ctx context.Context, factories component.Factories) (*Config, error) {
+func (cm *configProvider) Get(ctx context.Context, factories service.Factories) (*Config, error) {
 	conf, err := cm.mapResolver.Resolve(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("cannot resolve the configuration: %w", err)
@@ -128,6 +114,16 @@ func (cm *configProvider) Watch() <-chan error {
 
 func (cm *configProvider) Shutdown(ctx context.Context) error {
 	return cm.mapResolver.Shutdown(ctx)
+}
+
+func newDefaultConfigProviderSettings(uris []string) ConfigProviderSettings {
+	return ConfigProviderSettings{
+		ResolverSettings: confmap.ResolverSettings{
+			URIs:       uris,
+			Providers:  makeMapProvidersMap(fileprovider.New(), envprovider.New(), yamlprovider.New(), httpprovider.New()),
+			Converters: []confmap.Converter{expandconverter.New()},
+		},
+	}
 }
 
 func makeMapProvidersMap(providers ...confmap.Provider) map[string]confmap.Provider {

@@ -22,30 +22,29 @@ import (
 
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/confmap"
-	"go.opentelemetry.io/collector/processor"
-	"go.opentelemetry.io/collector/processor/processortest"
+	"go.opentelemetry.io/collector/extension"
+	"go.opentelemetry.io/collector/extension/extensiontest"
 )
 
-func TestProcessorsUnmarshal(t *testing.T) {
-	factories, err := processor.MakeFactoryMap(processortest.NewNopFactory())
+func TestExtensionsUnmarshal(t *testing.T) {
+	factories, err := extension.MakeFactoryMap(extensiontest.NewNopFactory())
 	require.NoError(t, err)
 
-	procs := NewProcessors(factories)
+	exts := NewExtensions(factories)
 	conf := confmap.NewFromStringMap(map[string]interface{}{
 		"nop":             nil,
-		"nop/myprocessor": nil,
+		"nop/myextension": nil,
 	})
-	require.NoError(t, procs.Unmarshal(conf))
+	require.NoError(t, exts.Unmarshal(conf))
 
 	cfgWithName := factories["nop"].CreateDefaultConfig()
-	cfgWithName.SetIDName("myprocessor") //nolint:staticcheck
 	assert.Equal(t, map[component.ID]component.Config{
 		component.NewID("nop"):                        factories["nop"].CreateDefaultConfig(),
-		component.NewIDWithName("nop", "myprocessor"): cfgWithName,
-	}, procs.procs)
+		component.NewIDWithName("nop", "myextension"): cfgWithName,
+	}, exts.GetExtensions())
 }
 
-func TestProcessorsUnmarshalError(t *testing.T) {
+func TestExtensionsUnmarshalError(t *testing.T) {
 	var testCases = []struct {
 		name string
 		conf *confmap.Conf
@@ -53,7 +52,7 @@ func TestProcessorsUnmarshalError(t *testing.T) {
 		expectedError string
 	}{
 		{
-			name: "invalid-processor-type",
+			name: "invalid-extension-type",
 			conf: confmap.NewFromStringMap(map[string]interface{}{
 				"nop":     nil,
 				"/custom": nil,
@@ -61,7 +60,7 @@ func TestProcessorsUnmarshalError(t *testing.T) {
 			expectedError: "the part before / should not be empty",
 		},
 		{
-			name: "invalid-processor-name-after-slash",
+			name: "invalid-extension-name-after-slash",
 			conf: confmap.NewFromStringMap(map[string]interface{}{
 				"nop":  nil,
 				"nop/": nil,
@@ -69,14 +68,14 @@ func TestProcessorsUnmarshalError(t *testing.T) {
 			expectedError: "the part after / should not be empty",
 		},
 		{
-			name: "unknown-processor-type",
+			name: "unknown-extension-type",
 			conf: confmap.NewFromStringMap(map[string]interface{}{
-				"nosuchprocessor": nil,
+				"nosuchextension": nil,
 			}),
-			expectedError: "unknown processors type: \"nosuchprocessor\"",
+			expectedError: "unknown extensions type: \"nosuchextension\"",
 		},
 		{
-			name: "duplicate-processor",
+			name: "duplicate-extension",
 			conf: confmap.NewFromStringMap(map[string]interface{}{
 				"nop /exp ": nil,
 				" nop/ exp": nil,
@@ -84,16 +83,16 @@ func TestProcessorsUnmarshalError(t *testing.T) {
 			expectedError: "duplicate name",
 		},
 		{
-			name: "invalid-processor-section",
+			name: "invalid-extension-section",
 			conf: confmap.NewFromStringMap(map[string]interface{}{
 				"nop": map[string]interface{}{
-					"unknown_section": "processor",
+					"unknown_section": "extension",
 				},
 			}),
-			expectedError: "error reading processors configuration for \"nop\"",
+			expectedError: "error reading extensions configuration for \"nop\"",
 		},
 		{
-			name: "invalid-processor-sub-config",
+			name: "invalid-extension-sub-config",
 			conf: confmap.NewFromStringMap(map[string]interface{}{
 				"nop": "tests",
 			}),
@@ -101,13 +100,13 @@ func TestProcessorsUnmarshalError(t *testing.T) {
 		},
 	}
 
-	factories, err := processor.MakeFactoryMap(processortest.NewNopFactory())
+	factories, err := extension.MakeFactoryMap(extensiontest.NewNopFactory())
 	assert.NoError(t, err)
 
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
-			procs := NewProcessors(factories)
-			err = procs.Unmarshal(tt.conf)
+			exts := NewExtensions(factories)
+			err = exts.Unmarshal(tt.conf)
 			require.Error(t, err)
 			assert.Contains(t, err.Error(), tt.expectedError)
 		})

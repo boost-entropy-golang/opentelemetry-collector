@@ -22,30 +22,29 @@ import (
 
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/confmap"
-	"go.opentelemetry.io/collector/exporter"
-	"go.opentelemetry.io/collector/exporter/exportertest"
+	"go.opentelemetry.io/collector/processor"
+	"go.opentelemetry.io/collector/processor/processortest"
 )
 
-func TestExportersUnmarshal(t *testing.T) {
-	factories, err := exporter.MakeFactoryMap(exportertest.NewNopFactory())
+func TestProcessorsUnmarshal(t *testing.T) {
+	factories, err := processor.MakeFactoryMap(processortest.NewNopFactory())
 	require.NoError(t, err)
 
-	exps := NewExporters(factories)
+	procs := NewProcessors(factories)
 	conf := confmap.NewFromStringMap(map[string]interface{}{
-		"nop":            nil,
-		"nop/myexporter": nil,
+		"nop":             nil,
+		"nop/myprocessor": nil,
 	})
-	require.NoError(t, exps.Unmarshal(conf))
+	require.NoError(t, procs.Unmarshal(conf))
 
 	cfgWithName := factories["nop"].CreateDefaultConfig()
-	cfgWithName.SetIDName("myexporter") //nolint:staticcheck
 	assert.Equal(t, map[component.ID]component.Config{
-		component.NewID("nop"):                       factories["nop"].CreateDefaultConfig(),
-		component.NewIDWithName("nop", "myexporter"): cfgWithName,
-	}, exps.GetExporters())
+		component.NewID("nop"):                        factories["nop"].CreateDefaultConfig(),
+		component.NewIDWithName("nop", "myprocessor"): cfgWithName,
+	}, procs.procs)
 }
 
-func TestExportersUnmarshalError(t *testing.T) {
+func TestProcessorsUnmarshalError(t *testing.T) {
 	var testCases = []struct {
 		name string
 		conf *confmap.Conf
@@ -53,7 +52,7 @@ func TestExportersUnmarshalError(t *testing.T) {
 		expectedError string
 	}{
 		{
-			name: "invalid-exporter-type",
+			name: "invalid-processor-type",
 			conf: confmap.NewFromStringMap(map[string]interface{}{
 				"nop":     nil,
 				"/custom": nil,
@@ -61,7 +60,7 @@ func TestExportersUnmarshalError(t *testing.T) {
 			expectedError: "the part before / should not be empty",
 		},
 		{
-			name: "invalid-exporter-name-after-slash",
+			name: "invalid-processor-name-after-slash",
 			conf: confmap.NewFromStringMap(map[string]interface{}{
 				"nop":  nil,
 				"nop/": nil,
@@ -69,14 +68,14 @@ func TestExportersUnmarshalError(t *testing.T) {
 			expectedError: "the part after / should not be empty",
 		},
 		{
-			name: "unknown-exporter-type",
+			name: "unknown-processor-type",
 			conf: confmap.NewFromStringMap(map[string]interface{}{
-				"nosuchexporter": nil,
+				"nosuchprocessor": nil,
 			}),
-			expectedError: "unknown exporters type: \"nosuchexporter\"",
+			expectedError: "unknown processors type: \"nosuchprocessor\"",
 		},
 		{
-			name: "duplicate-exporter",
+			name: "duplicate-processor",
 			conf: confmap.NewFromStringMap(map[string]interface{}{
 				"nop /exp ": nil,
 				" nop/ exp": nil,
@@ -84,16 +83,16 @@ func TestExportersUnmarshalError(t *testing.T) {
 			expectedError: "duplicate name",
 		},
 		{
-			name: "invalid-exporter-section",
+			name: "invalid-processor-section",
 			conf: confmap.NewFromStringMap(map[string]interface{}{
 				"nop": map[string]interface{}{
-					"unknown_section": "exporter",
+					"unknown_section": "processor",
 				},
 			}),
-			expectedError: "error reading exporters configuration for \"nop\"",
+			expectedError: "error reading processors configuration for \"nop\"",
 		},
 		{
-			name: "invalid-exporter-sub-config",
+			name: "invalid-processor-sub-config",
 			conf: confmap.NewFromStringMap(map[string]interface{}{
 				"nop": "tests",
 			}),
@@ -101,13 +100,13 @@ func TestExportersUnmarshalError(t *testing.T) {
 		},
 	}
 
-	factories, err := exporter.MakeFactoryMap(exportertest.NewNopFactory())
+	factories, err := processor.MakeFactoryMap(processortest.NewNopFactory())
 	assert.NoError(t, err)
 
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
-			exps := NewExporters(factories)
-			err = exps.Unmarshal(tt.conf)
+			procs := NewProcessors(factories)
+			err = procs.Unmarshal(tt.conf)
 			require.Error(t, err)
 			assert.Contains(t, err.Error(), tt.expectedError)
 		})

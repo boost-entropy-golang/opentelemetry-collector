@@ -12,15 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package service // import "go.opentelemetry.io/collector/service"
+package otelcol // import "go.opentelemetry.io/collector/otelcol"
 
 import (
 	"go.uber.org/zap/zapcore"
 
-	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/config/configtelemetry"
 	"go.opentelemetry.io/collector/confmap"
-	"go.opentelemetry.io/collector/service/internal/configunmarshaler"
+	"go.opentelemetry.io/collector/otelcol/internal/configunmarshaler"
+	"go.opentelemetry.io/collector/service"
 	"go.opentelemetry.io/collector/service/telemetry"
 )
 
@@ -29,12 +29,12 @@ type configSettings struct {
 	Processors *configunmarshaler.Processors `mapstructure:"processors"`
 	Exporters  *configunmarshaler.Exporters  `mapstructure:"exporters"`
 	Extensions *configunmarshaler.Extensions `mapstructure:"extensions"`
-	Service    ConfigService                 `mapstructure:"service"`
+	Service    service.ConfigService         `mapstructure:"service"`
 }
 
 // unmarshal the configSettings from a confmap.Conf.
 // After the config is unmarshalled, `Validate()` must be called to validate.
-func unmarshal(v *confmap.Conf, factories component.Factories) (*configSettings, error) {
+func unmarshal(v *confmap.Conf, factories service.Factories) (*configSettings, error) {
 	// Unmarshal top level sections and validate.
 	cfg := &configSettings{
 		Receivers:  configunmarshaler.NewReceivers(factories.Receivers),
@@ -42,7 +42,7 @@ func unmarshal(v *confmap.Conf, factories component.Factories) (*configSettings,
 		Exporters:  configunmarshaler.NewExporters(factories.Exporters),
 		Extensions: configunmarshaler.NewExtensions(factories.Extensions),
 		// TODO: Add a component.ServiceFactory to allow this to be defined by the Service.
-		Service: ConfigService{
+		Service: service.ConfigService{
 			Telemetry: telemetry.Config{
 				Logs: telemetry.LogsConfig{
 					Level:       zapcore.InfoLevel,

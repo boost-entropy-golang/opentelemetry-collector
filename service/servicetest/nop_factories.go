@@ -12,19 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package configunmarshaler // import "go.opentelemetry.io/collector/service/internal/configunmarshaler"
+package servicetest // import "go.opentelemetry.io/collector/service/servicetest"
 
-import (
-	"fmt"
-	"reflect"
+import "go.opentelemetry.io/collector/component/componenttest"
 
-	"go.opentelemetry.io/collector/component"
-)
-
-func errorUnknownType(component string, id component.ID, factories []reflect.Value) error {
-	return fmt.Errorf("unknown %s type: %q for id: %q (valid values: %v)", component, id.Type(), id, factories)
-}
-
-func errorUnmarshalError(component string, id component.ID, err error) error {
-	return fmt.Errorf("error reading %s configuration for %q: %w", component, id, err)
-}
+// NopFactories returns a service.Factories with all nop factories.
+var NopFactories = componenttest.NopFactories // nolint:staticcheck
