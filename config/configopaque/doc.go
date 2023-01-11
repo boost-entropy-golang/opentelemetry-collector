@@ -12,16 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package components // import "go.opentelemetry.io/collector/service/internal/components"
-
-const (
-	ZapKindKey       = "kind"
-	ZapKindReceiver  = "receiver"
-	ZapKindProcessor = "processor"
-	ZapKindExporter  = "exporter"
-	ZapKindExtension = "extension"
-	ZapKindPipeline  = "pipeline"
-	ZapNameKey       = "name"
-	ZapDataTypeKey   = "data_type"
-	ZapStabilityKey  = "stability"
-)
+// Package configopaque implements String type alias to mask sensitive information.
+// Use configopaque.String on the type of sensitive fields, to mask the
+// opaque string as `[REDACTED]`.
+//
+// This ensure that no sensitive information is leaked when printing the
+// full Collector configurations.
+package configopaque // import "go.opentelemetry.io/collector/config/configopaque"
