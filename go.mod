@@ -7,7 +7,7 @@ require (
 	github.com/cenkalti/backoff/v4 v4.2.0
 	github.com/golang/snappy v0.0.4
 	github.com/google/uuid v1.3.0
-	github.com/klauspost/compress v1.15.14
+	github.com/klauspost/compress v1.15.15
 	github.com/mostynb/go-grpc-compression v1.1.17
 	github.com/prometheus/client_golang v1.14.0
 	github.com/prometheus/client_model v0.3.0
@@ -17,13 +17,13 @@ require (
 	github.com/spf13/cobra v1.6.1
 	github.com/stretchr/testify v1.8.1
 	go.opencensus.io v0.24.0
-	go.opentelemetry.io/collector/component v0.69.1
-	go.opentelemetry.io/collector/confmap v0.69.1
-	go.opentelemetry.io/collector/consumer v0.69.1
-	go.opentelemetry.io/collector/extension/zpagesextension v0.69.1
-	go.opentelemetry.io/collector/featuregate v0.69.1
-	go.opentelemetry.io/collector/pdata v1.0.0-rc3
-	go.opentelemetry.io/collector/semconv v0.69.1
+	go.opentelemetry.io/collector/component v0.70.0
+	go.opentelemetry.io/collector/confmap v0.70.0
+	go.opentelemetry.io/collector/consumer v0.70.0
+	go.opentelemetry.io/collector/extension/zpagesextension v0.70.0
+	go.opentelemetry.io/collector/featuregate v0.70.0
+	go.opentelemetry.io/collector/pdata v1.0.0-rc4
+	go.opentelemetry.io/collector/semconv v0.70.0
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.37.0
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.37.0
 	go.opentelemetry.io/contrib/propagators/b3 v1.12.0
@@ -38,6 +38,7 @@ require (
 	go.uber.org/zap v1.24.0
 	golang.org/x/net v0.5.0
 	golang.org/x/sys v0.4.0
+	gonum.org/v1/gonum v0.12.0
 	google.golang.org/grpc v1.52.0
 	gopkg.in/yaml.v3 v3.0.1
 )
@@ -58,7 +59,7 @@ require (
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/inconshreveable/mousetrap v1.0.1 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
-	github.com/knadh/koanf v1.4.5 // indirect
+	github.com/knadh/koanf v1.5.0 // indirect
 	github.com/lufia/plan9stats v0.0.0-20211012122336-39d0f177ccd0 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.4 // indirect
 	github.com/mitchellh/copystructure v1.2.0 // indirect
