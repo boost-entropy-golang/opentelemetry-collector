@@ -22,6 +22,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"go.opentelemetry.io/collector/component"
+	"go.opentelemetry.io/collector/featuregate"
 	"go.opentelemetry.io/collector/service"
 )
 
@@ -52,6 +53,10 @@ func TestLoadConfig(t *testing.T) {
 	assert.Contains(t, cfg.Processors, component.NewID("nop"))
 	assert.Contains(t, cfg.Processors, component.NewIDWithName("nop", "myprocessor"))
 
+	// Verify connectors
+	assert.Len(t, cfg.Connectors, 1)
+	assert.Contains(t, cfg.Connectors, component.NewIDWithName("nop", "myconnector"))
+
 	// Verify service.
 	require.Len(t, cfg.Service.Extensions, 1)
 	assert.Contains(t, cfg.Service.Extensions, component.NewID("nop"))
@@ -70,6 +75,10 @@ func TestLoadConfigAndValidate(t *testing.T) {
 	factories, err := NopFactories()
 	assert.NoError(t, err)
 
+	require.NoError(t, featuregate.GlobalRegistry().Apply(map[string]bool{"otelcol.enableConnectors": true}))
+	defer func() {
+		require.NoError(t, featuregate.GlobalRegistry().Apply(map[string]bool{"otelcol.enableConnectors": false}))
+	}()
 	cfgValidate, errValidate := LoadConfigAndValidate(filepath.Join("testdata", "config.yaml"), factories)
 	require.NoError(t, errValidate)
 
