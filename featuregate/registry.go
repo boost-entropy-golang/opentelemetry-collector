@@ -23,9 +23,6 @@ import (
 
 var globalRegistry = NewRegistry()
 
-// Deprecated: [v0.70.0] use GlobalRegistry.
-var GetRegistry = GlobalRegistry
-
 // GlobalRegistry returns the global Registry.
 func GlobalRegistry() *Registry {
 	return globalRegistry
@@ -40,8 +37,11 @@ func NewRegistry() *Registry {
 	return &Registry{}
 }
 
-// RegistryOption allows to configure additional information about a Gate during registration.
-type RegistryOption interface {
+// Deprecated: [v0.71.0] use RegisterOption.
+type RegistryOption = RegisterOption
+
+// RegisterOption allows to configure additional information about a Gate during registration.
+type RegisterOption interface {
 	apply(g *Gate)
 }
 
@@ -52,14 +52,14 @@ func (ro registerOptionFunc) apply(g *Gate) {
 }
 
 // WithRegisterDescription adds description for the Gate.
-func WithRegisterDescription(description string) RegistryOption {
+func WithRegisterDescription(description string) RegisterOption {
 	return registerOptionFunc(func(g *Gate) {
 		g.description = description
 	})
 }
 
-// WithRegisterReferenceURL adds an URL that has all the contextual information about the Gate.
-func WithRegisterReferenceURL(url string) RegistryOption {
+// WithRegisterReferenceURL adds a URL that has all the contextual information about the Gate.
+func WithRegisterReferenceURL(url string) RegisterOption {
 	return registerOptionFunc(func(g *Gate) {
 		g.referenceURL = url
 	})
@@ -67,25 +67,18 @@ func WithRegisterReferenceURL(url string) RegistryOption {
 
 // WithRegisterRemovalVersion is used when the Gate is considered StageStable,
 // to inform users that referencing the gate is no longer needed.
-func WithRegisterRemovalVersion(version string) RegistryOption {
+func WithRegisterRemovalVersion(version string) RegisterOption {
 	return registerOptionFunc(func(g *Gate) {
 		g.removalVersion = version
 	})
 }
 
-// Apply a configuration in the form of a map of Gate identifiers to boolean values.
-// Sets only those values provided in the map, other gate values are not changed.
+// Deprecated: [v0.71.0] use Set.
 func (r *Registry) Apply(cfg map[string]bool) error {
-	for id, val := range cfg {
-		v, ok := r.gates.Load(id)
-		if !ok {
-			return fmt.Errorf("feature gate %s is unregistered", id)
+	for id, enabled := range cfg {
+		if err := r.Set(id, enabled); err != nil {
+			return err
 		}
-		g := v.(*Gate)
-		if g.stage == StageStable {
-			return fmt.Errorf("feature gate %s is stable, can not be modified", id)
-		}
-		g.enabled.Store(val)
 	}
 	return nil
 }
@@ -101,7 +94,7 @@ func (r *Registry) IsEnabled(id string) bool {
 }
 
 // MustRegister like Register but panics if an invalid ID or gate options are provided.
-func (r *Registry) MustRegister(id string, stage Stage, opts ...RegistryOption) Gate {
+func (r *Registry) MustRegister(id string, stage Stage, opts ...RegisterOption) Gate {
 	g, err := r.Register(id, stage, opts...)
 	if err != nil {
 		panic(err)
@@ -110,7 +103,7 @@ func (r *Registry) MustRegister(id string, stage Stage, opts ...RegistryOption) 
 }
 
 // Register a Gate and return it. The returned Gate can be used to check if is enabled or not.
-func (r *Registry) Register(id string, stage Stage, opts ...RegistryOption) (Gate, error) {
+func (r *Registry) Register(id string, stage Stage, opts ...RegisterOption) (Gate, error) {
 	g := &Gate{
 		id:    id,
 		stage: stage,
@@ -136,14 +129,28 @@ func (r *Registry) Register(id string, stage Stage, opts ...RegistryOption) (Gat
 }
 
 // Deprecated: [v0.71.0] use MustRegister.
-func (r *Registry) MustRegisterID(id string, stage Stage, opts ...RegistryOption) {
+func (r *Registry) MustRegisterID(id string, stage Stage, opts ...RegisterOption) {
 	r.MustRegister(id, stage, opts...)
 }
 
 // Deprecated: [v0.71.0] use Register.
-func (r *Registry) RegisterID(id string, stage Stage, opts ...RegistryOption) error {
+func (r *Registry) RegisterID(id string, stage Stage, opts ...RegisterOption) error {
 	_, err := r.Register(id, stage, opts...)
 	return err
+}
+
+// Set the enabled valued for a Gate identified by the given id.
+func (r *Registry) Set(id string, enabled bool) error {
+	v, ok := r.gates.Load(id)
+	if !ok {
+		return fmt.Errorf("no such feature gate -%v", id)
+	}
+	g := v.(*Gate)
+	if g.stage == StageStable {
+		return fmt.Errorf("feature gate %s is stable, can not be modified", id)
+	}
+	g.enabled.Store(enabled)
+	return nil
 }
 
 // List returns a slice of copies of all registered Gates.
