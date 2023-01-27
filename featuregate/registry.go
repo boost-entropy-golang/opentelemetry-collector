@@ -16,6 +16,7 @@ package featuregate // import "go.opentelemetry.io/collector/featuregate"
 
 import (
 	"fmt"
+	"sort"
 	"sync"
 
 	"go.uber.org/atomic"
@@ -94,7 +95,7 @@ func (r *Registry) IsEnabled(id string) bool {
 }
 
 // MustRegister like Register but panics if an invalid ID or gate options are provided.
-func (r *Registry) MustRegister(id string, stage Stage, opts ...RegisterOption) Gate {
+func (r *Registry) MustRegister(id string, stage Stage, opts ...RegisterOption) *Gate {
 	g, err := r.Register(id, stage, opts...)
 	if err != nil {
 		panic(err)
@@ -103,7 +104,7 @@ func (r *Registry) MustRegister(id string, stage Stage, opts ...RegisterOption) 
 }
 
 // Register a Gate and return it. The returned Gate can be used to check if is enabled or not.
-func (r *Registry) Register(id string, stage Stage, opts ...RegisterOption) (Gate, error) {
+func (r *Registry) Register(id string, stage Stage, opts ...RegisterOption) (*Gate, error) {
 	g := &Gate{
 		id:    id,
 		stage: stage,
@@ -117,15 +118,15 @@ func (r *Registry) Register(id string, stage Stage, opts ...RegisterOption) (Gat
 	case StageBeta, StageStable:
 		g.enabled = atomic.NewBool(true)
 	default:
-		return *g, fmt.Errorf("unknown stage value %q for gate %q", stage, id)
+		return nil, fmt.Errorf("unknown stage value %q for gate %q", stage, id)
 	}
 	if g.stage == StageStable && g.removalVersion == "" {
-		return *g, fmt.Errorf("no removal version set for stable gate %q", id)
+		return nil, fmt.Errorf("no removal version set for stable gate %q", id)
 	}
 	if _, loaded := r.gates.LoadOrStore(id, g); loaded {
-		return *g, fmt.Errorf("attempted to add pre-existing gate %q", id)
+		return nil, fmt.Errorf("attempted to add pre-existing gate %q", id)
 	}
-	return *g, nil
+	return g, nil
 }
 
 // Deprecated: [v0.71.0] use MustRegister.
@@ -153,12 +154,26 @@ func (r *Registry) Set(id string, enabled bool) error {
 	return nil
 }
 
-// List returns a slice of copies of all registered Gates.
+// Visit visits the gates in lexicographical order, calling fn for each.
+func (r *Registry) Visit(fn func(*Gate)) {
+	var gates []*Gate
+	r.gates.Range(func(key, value any) bool {
+		gates = append(gates, value.(*Gate))
+		return true
+	})
+	sort.Slice(gates, func(i, j int) bool {
+		return gates[i].ID() < gates[j].ID()
+	})
+	for i := range gates {
+		fn(gates[i])
+	}
+}
+
+// Deprecated: [v0.71.0] use Visit.
 func (r *Registry) List() []Gate {
 	var ret []Gate
-	r.gates.Range(func(key, value any) bool {
-		ret = append(ret, *(value.(*Gate)))
-		return true
+	r.Visit(func(gate *Gate) {
+		ret = append(ret, *gate)
 	})
 	return ret
 }
