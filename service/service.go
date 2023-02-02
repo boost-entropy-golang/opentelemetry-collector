@@ -190,13 +190,13 @@ func (srv *Service) initExtensionsAndPipeline(ctx context.Context, set Settings,
 	}
 
 	pSet := pipelinesSettings{
-		Telemetry:       srv.telemetrySettings,
-		BuildInfo:       srv.buildInfo,
-		Receivers:       set.Receivers,
-		Processors:      set.Processors,
-		Exporters:       set.Exporters,
-		Connectors:      set.Connectors,
-		PipelineConfigs: cfg.Pipelines,
+		Telemetry:        srv.telemetrySettings,
+		BuildInfo:        srv.buildInfo,
+		ReceiverBuilder:  set.Receivers,
+		ProcessorBuilder: set.Processors,
+		ExporterBuilder:  set.Exporters,
+		ConnectorBuilder: set.Connectors,
+		PipelineConfigs:  cfg.Pipelines,
 	}
 
 	if sharedgate.ConnectorsFeatureGate.IsEnabled() {
@@ -211,7 +211,7 @@ func (srv *Service) initExtensionsAndPipeline(ctx context.Context, set Settings,
 
 	if cfg.Telemetry.Metrics.Level != configtelemetry.LevelNone && cfg.Telemetry.Metrics.Address != "" {
 		// The process telemetry initialization requires the ballast size, which is available after the extensions are initialized.
-		if err = proctelemetry.RegisterProcessMetrics(srv.telemetryInitializer.ocRegistry, getBallastSize(srv.host)); err != nil {
+		if err = proctelemetry.RegisterProcessMetrics(srv.telemetryInitializer.ocRegistry, srv.telemetryInitializer.mp, obsreportconfig.UseOtelForInternalMetricsfeatureGate.IsEnabled(), getBallastSize(srv.host)); err != nil {
 			return fmt.Errorf("failed to register process metrics: %w", err)
 		}
 	}
