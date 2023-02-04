@@ -19,6 +19,7 @@ package pmetric
 
 import (
 	"testing"
+	"unsafe"
 
 	"github.com/stretchr/testify/assert"
 
@@ -31,16 +32,15 @@ func TestMetricSlice(t *testing.T) {
 	es = newMetricSlice(&[]*otlpmetrics.Metric{})
 	assert.Equal(t, 0, es.Len())
 
-	es.EnsureCapacity(7)
-	emptyVal := newMetric(&otlpmetrics.Metric{})
+	emptyVal := NewMetric()
 	testVal := generateTestMetric()
-	assert.Equal(t, 7, cap(*es.orig))
-	for i := 0; i < es.Len(); i++ {
+	for i := 0; i < 7; i++ {
 		el := es.AppendEmpty()
-		assert.Equal(t, emptyVal, el)
+		assert.Equal(t, emptyVal, es.At(i))
 		fillTestMetric(el)
-		assert.Equal(t, testVal, el)
+		assert.Equal(t, testVal, es.At(i))
 	}
+	assert.Equal(t, 7, es.Len())
 }
 
 func TestMetricSlice_CopyTo(t *testing.T) {
@@ -119,16 +119,32 @@ func TestMetricSlice_RemoveIf(t *testing.T) {
 	assert.Equal(t, 5, filtered.Len())
 }
 
-func generateTestMetricSlice() MetricSlice {
-	tv := NewMetricSlice()
-	fillTestMetricSlice(tv)
-	return tv
+func TestMetricSlice_Sort(t *testing.T) {
+	es := generateTestMetricSlice()
+	es.Sort(func(a, b Metric) bool {
+		return uintptr(unsafe.Pointer(a.orig)) < uintptr(unsafe.Pointer(b.orig))
+	})
+	for i := 1; i < es.Len(); i++ {
+		assert.True(t, uintptr(unsafe.Pointer(es.At(i-1).orig)) < uintptr(unsafe.Pointer(es.At(i).orig)))
+	}
+	es.Sort(func(a, b Metric) bool {
+		return uintptr(unsafe.Pointer(a.orig)) > uintptr(unsafe.Pointer(b.orig))
+	})
+	for i := 1; i < es.Len(); i++ {
+		assert.True(t, uintptr(unsafe.Pointer(es.At(i-1).orig)) > uintptr(unsafe.Pointer(es.At(i).orig)))
+	}
 }
 
-func fillTestMetricSlice(tv MetricSlice) {
-	*tv.orig = make([]*otlpmetrics.Metric, 7)
+func generateTestMetricSlice() MetricSlice {
+	es := NewMetricSlice()
+	fillTestMetricSlice(es)
+	return es
+}
+
+func fillTestMetricSlice(es MetricSlice) {
+	*es.orig = make([]*otlpmetrics.Metric, 7)
 	for i := 0; i < 7; i++ {
-		(*tv.orig)[i] = &otlpmetrics.Metric{}
-		fillTestMetric(newMetric((*tv.orig)[i]))
+		(*es.orig)[i] = &otlpmetrics.Metric{}
+		fillTestMetric(newMetric((*es.orig)[i]))
 	}
 }

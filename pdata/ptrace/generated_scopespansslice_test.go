@@ -19,6 +19,7 @@ package ptrace
 
 import (
 	"testing"
+	"unsafe"
 
 	"github.com/stretchr/testify/assert"
 
@@ -31,16 +32,15 @@ func TestScopeSpansSlice(t *testing.T) {
 	es = newScopeSpansSlice(&[]*otlptrace.ScopeSpans{})
 	assert.Equal(t, 0, es.Len())
 
-	es.EnsureCapacity(7)
-	emptyVal := newScopeSpans(&otlptrace.ScopeSpans{})
+	emptyVal := NewScopeSpans()
 	testVal := generateTestScopeSpans()
-	assert.Equal(t, 7, cap(*es.orig))
-	for i := 0; i < es.Len(); i++ {
+	for i := 0; i < 7; i++ {
 		el := es.AppendEmpty()
-		assert.Equal(t, emptyVal, el)
+		assert.Equal(t, emptyVal, es.At(i))
 		fillTestScopeSpans(el)
-		assert.Equal(t, testVal, el)
+		assert.Equal(t, testVal, es.At(i))
 	}
+	assert.Equal(t, 7, es.Len())
 }
 
 func TestScopeSpansSlice_CopyTo(t *testing.T) {
@@ -119,16 +119,32 @@ func TestScopeSpansSlice_RemoveIf(t *testing.T) {
 	assert.Equal(t, 5, filtered.Len())
 }
 
-func generateTestScopeSpansSlice() ScopeSpansSlice {
-	tv := NewScopeSpansSlice()
-	fillTestScopeSpansSlice(tv)
-	return tv
+func TestScopeSpansSlice_Sort(t *testing.T) {
+	es := generateTestScopeSpansSlice()
+	es.Sort(func(a, b ScopeSpans) bool {
+		return uintptr(unsafe.Pointer(a.orig)) < uintptr(unsafe.Pointer(b.orig))
+	})
+	for i := 1; i < es.Len(); i++ {
+		assert.True(t, uintptr(unsafe.Pointer(es.At(i-1).orig)) < uintptr(unsafe.Pointer(es.At(i).orig)))
+	}
+	es.Sort(func(a, b ScopeSpans) bool {
+		return uintptr(unsafe.Pointer(a.orig)) > uintptr(unsafe.Pointer(b.orig))
+	})
+	for i := 1; i < es.Len(); i++ {
+		assert.True(t, uintptr(unsafe.Pointer(es.At(i-1).orig)) > uintptr(unsafe.Pointer(es.At(i).orig)))
+	}
 }
 
-func fillTestScopeSpansSlice(tv ScopeSpansSlice) {
-	*tv.orig = make([]*otlptrace.ScopeSpans, 7)
+func generateTestScopeSpansSlice() ScopeSpansSlice {
+	es := NewScopeSpansSlice()
+	fillTestScopeSpansSlice(es)
+	return es
+}
+
+func fillTestScopeSpansSlice(es ScopeSpansSlice) {
+	*es.orig = make([]*otlptrace.ScopeSpans, 7)
 	for i := 0; i < 7; i++ {
-		(*tv.orig)[i] = &otlptrace.ScopeSpans{}
-		fillTestScopeSpans(newScopeSpans((*tv.orig)[i]))
+		(*es.orig)[i] = &otlptrace.ScopeSpans{}
+		fillTestScopeSpans(newScopeSpans((*es.orig)[i]))
 	}
 }

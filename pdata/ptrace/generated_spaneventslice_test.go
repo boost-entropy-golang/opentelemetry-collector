@@ -19,6 +19,7 @@ package ptrace
 
 import (
 	"testing"
+	"unsafe"
 
 	"github.com/stretchr/testify/assert"
 
@@ -31,16 +32,15 @@ func TestSpanEventSlice(t *testing.T) {
 	es = newSpanEventSlice(&[]*otlptrace.Span_Event{})
 	assert.Equal(t, 0, es.Len())
 
-	es.EnsureCapacity(7)
-	emptyVal := newSpanEvent(&otlptrace.Span_Event{})
+	emptyVal := NewSpanEvent()
 	testVal := generateTestSpanEvent()
-	assert.Equal(t, 7, cap(*es.orig))
-	for i := 0; i < es.Len(); i++ {
+	for i := 0; i < 7; i++ {
 		el := es.AppendEmpty()
-		assert.Equal(t, emptyVal, el)
+		assert.Equal(t, emptyVal, es.At(i))
 		fillTestSpanEvent(el)
-		assert.Equal(t, testVal, el)
+		assert.Equal(t, testVal, es.At(i))
 	}
+	assert.Equal(t, 7, es.Len())
 }
 
 func TestSpanEventSlice_CopyTo(t *testing.T) {
@@ -119,16 +119,32 @@ func TestSpanEventSlice_RemoveIf(t *testing.T) {
 	assert.Equal(t, 5, filtered.Len())
 }
 
-func generateTestSpanEventSlice() SpanEventSlice {
-	tv := NewSpanEventSlice()
-	fillTestSpanEventSlice(tv)
-	return tv
+func TestSpanEventSlice_Sort(t *testing.T) {
+	es := generateTestSpanEventSlice()
+	es.Sort(func(a, b SpanEvent) bool {
+		return uintptr(unsafe.Pointer(a.orig)) < uintptr(unsafe.Pointer(b.orig))
+	})
+	for i := 1; i < es.Len(); i++ {
+		assert.True(t, uintptr(unsafe.Pointer(es.At(i-1).orig)) < uintptr(unsafe.Pointer(es.At(i).orig)))
+	}
+	es.Sort(func(a, b SpanEvent) bool {
+		return uintptr(unsafe.Pointer(a.orig)) > uintptr(unsafe.Pointer(b.orig))
+	})
+	for i := 1; i < es.Len(); i++ {
+		assert.True(t, uintptr(unsafe.Pointer(es.At(i-1).orig)) > uintptr(unsafe.Pointer(es.At(i).orig)))
+	}
 }
 
-func fillTestSpanEventSlice(tv SpanEventSlice) {
-	*tv.orig = make([]*otlptrace.Span_Event, 7)
+func generateTestSpanEventSlice() SpanEventSlice {
+	es := NewSpanEventSlice()
+	fillTestSpanEventSlice(es)
+	return es
+}
+
+func fillTestSpanEventSlice(es SpanEventSlice) {
+	*es.orig = make([]*otlptrace.Span_Event, 7)
 	for i := 0; i < 7; i++ {
-		(*tv.orig)[i] = &otlptrace.Span_Event{}
-		fillTestSpanEvent(newSpanEvent((*tv.orig)[i]))
+		(*es.orig)[i] = &otlptrace.Span_Event{}
+		fillTestSpanEvent(newSpanEvent((*es.orig)[i]))
 	}
 }

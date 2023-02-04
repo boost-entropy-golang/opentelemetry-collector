@@ -19,6 +19,7 @@ package ptrace
 
 import (
 	"testing"
+	"unsafe"
 
 	"github.com/stretchr/testify/assert"
 
@@ -31,16 +32,15 @@ func TestSpanSlice(t *testing.T) {
 	es = newSpanSlice(&[]*otlptrace.Span{})
 	assert.Equal(t, 0, es.Len())
 
-	es.EnsureCapacity(7)
-	emptyVal := newSpan(&otlptrace.Span{})
+	emptyVal := NewSpan()
 	testVal := generateTestSpan()
-	assert.Equal(t, 7, cap(*es.orig))
-	for i := 0; i < es.Len(); i++ {
+	for i := 0; i < 7; i++ {
 		el := es.AppendEmpty()
-		assert.Equal(t, emptyVal, el)
+		assert.Equal(t, emptyVal, es.At(i))
 		fillTestSpan(el)
-		assert.Equal(t, testVal, el)
+		assert.Equal(t, testVal, es.At(i))
 	}
+	assert.Equal(t, 7, es.Len())
 }
 
 func TestSpanSlice_CopyTo(t *testing.T) {
@@ -119,16 +119,32 @@ func TestSpanSlice_RemoveIf(t *testing.T) {
 	assert.Equal(t, 5, filtered.Len())
 }
 
-func generateTestSpanSlice() SpanSlice {
-	tv := NewSpanSlice()
-	fillTestSpanSlice(tv)
-	return tv
+func TestSpanSlice_Sort(t *testing.T) {
+	es := generateTestSpanSlice()
+	es.Sort(func(a, b Span) bool {
+		return uintptr(unsafe.Pointer(a.orig)) < uintptr(unsafe.Pointer(b.orig))
+	})
+	for i := 1; i < es.Len(); i++ {
+		assert.True(t, uintptr(unsafe.Pointer(es.At(i-1).orig)) < uintptr(unsafe.Pointer(es.At(i).orig)))
+	}
+	es.Sort(func(a, b Span) bool {
+		return uintptr(unsafe.Pointer(a.orig)) > uintptr(unsafe.Pointer(b.orig))
+	})
+	for i := 1; i < es.Len(); i++ {
+		assert.True(t, uintptr(unsafe.Pointer(es.At(i-1).orig)) > uintptr(unsafe.Pointer(es.At(i).orig)))
+	}
 }
 
-func fillTestSpanSlice(tv SpanSlice) {
-	*tv.orig = make([]*otlptrace.Span, 7)
+func generateTestSpanSlice() SpanSlice {
+	es := NewSpanSlice()
+	fillTestSpanSlice(es)
+	return es
+}
+
+func fillTestSpanSlice(es SpanSlice) {
+	*es.orig = make([]*otlptrace.Span, 7)
 	for i := 0; i < 7; i++ {
-		(*tv.orig)[i] = &otlptrace.Span{}
-		fillTestSpan(newSpan((*tv.orig)[i]))
+		(*es.orig)[i] = &otlptrace.Span{}
+		fillTestSpan(newSpan((*es.orig)[i]))
 	}
 }

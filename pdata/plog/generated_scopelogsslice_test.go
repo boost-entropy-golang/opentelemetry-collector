@@ -19,6 +19,7 @@ package plog
 
 import (
 	"testing"
+	"unsafe"
 
 	"github.com/stretchr/testify/assert"
 
@@ -31,16 +32,15 @@ func TestScopeLogsSlice(t *testing.T) {
 	es = newScopeLogsSlice(&[]*otlplogs.ScopeLogs{})
 	assert.Equal(t, 0, es.Len())
 
-	es.EnsureCapacity(7)
-	emptyVal := newScopeLogs(&otlplogs.ScopeLogs{})
+	emptyVal := NewScopeLogs()
 	testVal := generateTestScopeLogs()
-	assert.Equal(t, 7, cap(*es.orig))
-	for i := 0; i < es.Len(); i++ {
+	for i := 0; i < 7; i++ {
 		el := es.AppendEmpty()
-		assert.Equal(t, emptyVal, el)
+		assert.Equal(t, emptyVal, es.At(i))
 		fillTestScopeLogs(el)
-		assert.Equal(t, testVal, el)
+		assert.Equal(t, testVal, es.At(i))
 	}
+	assert.Equal(t, 7, es.Len())
 }
 
 func TestScopeLogsSlice_CopyTo(t *testing.T) {
@@ -119,16 +119,32 @@ func TestScopeLogsSlice_RemoveIf(t *testing.T) {
 	assert.Equal(t, 5, filtered.Len())
 }
 
-func generateTestScopeLogsSlice() ScopeLogsSlice {
-	tv := NewScopeLogsSlice()
-	fillTestScopeLogsSlice(tv)
-	return tv
+func TestScopeLogsSlice_Sort(t *testing.T) {
+	es := generateTestScopeLogsSlice()
+	es.Sort(func(a, b ScopeLogs) bool {
+		return uintptr(unsafe.Pointer(a.orig)) < uintptr(unsafe.Pointer(b.orig))
+	})
+	for i := 1; i < es.Len(); i++ {
+		assert.True(t, uintptr(unsafe.Pointer(es.At(i-1).orig)) < uintptr(unsafe.Pointer(es.At(i).orig)))
+	}
+	es.Sort(func(a, b ScopeLogs) bool {
+		return uintptr(unsafe.Pointer(a.orig)) > uintptr(unsafe.Pointer(b.orig))
+	})
+	for i := 1; i < es.Len(); i++ {
+		assert.True(t, uintptr(unsafe.Pointer(es.At(i-1).orig)) > uintptr(unsafe.Pointer(es.At(i).orig)))
+	}
 }
 
-func fillTestScopeLogsSlice(tv ScopeLogsSlice) {
-	*tv.orig = make([]*otlplogs.ScopeLogs, 7)
+func generateTestScopeLogsSlice() ScopeLogsSlice {
+	es := NewScopeLogsSlice()
+	fillTestScopeLogsSlice(es)
+	return es
+}
+
+func fillTestScopeLogsSlice(es ScopeLogsSlice) {
+	*es.orig = make([]*otlplogs.ScopeLogs, 7)
 	for i := 0; i < 7; i++ {
-		(*tv.orig)[i] = &otlplogs.ScopeLogs{}
-		fillTestScopeLogs(newScopeLogs((*tv.orig)[i]))
+		(*es.orig)[i] = &otlplogs.ScopeLogs{}
+		fillTestScopeLogs(newScopeLogs((*es.orig)[i]))
 	}
 }

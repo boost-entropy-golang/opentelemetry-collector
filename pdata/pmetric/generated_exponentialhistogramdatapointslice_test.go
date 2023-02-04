@@ -19,6 +19,7 @@ package pmetric
 
 import (
 	"testing"
+	"unsafe"
 
 	"github.com/stretchr/testify/assert"
 
@@ -31,16 +32,15 @@ func TestExponentialHistogramDataPointSlice(t *testing.T) {
 	es = newExponentialHistogramDataPointSlice(&[]*otlpmetrics.ExponentialHistogramDataPoint{})
 	assert.Equal(t, 0, es.Len())
 
-	es.EnsureCapacity(7)
-	emptyVal := newExponentialHistogramDataPoint(&otlpmetrics.ExponentialHistogramDataPoint{})
+	emptyVal := NewExponentialHistogramDataPoint()
 	testVal := generateTestExponentialHistogramDataPoint()
-	assert.Equal(t, 7, cap(*es.orig))
-	for i := 0; i < es.Len(); i++ {
+	for i := 0; i < 7; i++ {
 		el := es.AppendEmpty()
-		assert.Equal(t, emptyVal, el)
+		assert.Equal(t, emptyVal, es.At(i))
 		fillTestExponentialHistogramDataPoint(el)
-		assert.Equal(t, testVal, el)
+		assert.Equal(t, testVal, es.At(i))
 	}
+	assert.Equal(t, 7, es.Len())
 }
 
 func TestExponentialHistogramDataPointSlice_CopyTo(t *testing.T) {
@@ -119,16 +119,32 @@ func TestExponentialHistogramDataPointSlice_RemoveIf(t *testing.T) {
 	assert.Equal(t, 5, filtered.Len())
 }
 
-func generateTestExponentialHistogramDataPointSlice() ExponentialHistogramDataPointSlice {
-	tv := NewExponentialHistogramDataPointSlice()
-	fillTestExponentialHistogramDataPointSlice(tv)
-	return tv
+func TestExponentialHistogramDataPointSlice_Sort(t *testing.T) {
+	es := generateTestExponentialHistogramDataPointSlice()
+	es.Sort(func(a, b ExponentialHistogramDataPoint) bool {
+		return uintptr(unsafe.Pointer(a.orig)) < uintptr(unsafe.Pointer(b.orig))
+	})
+	for i := 1; i < es.Len(); i++ {
+		assert.True(t, uintptr(unsafe.Pointer(es.At(i-1).orig)) < uintptr(unsafe.Pointer(es.At(i).orig)))
+	}
+	es.Sort(func(a, b ExponentialHistogramDataPoint) bool {
+		return uintptr(unsafe.Pointer(a.orig)) > uintptr(unsafe.Pointer(b.orig))
+	})
+	for i := 1; i < es.Len(); i++ {
+		assert.True(t, uintptr(unsafe.Pointer(es.At(i-1).orig)) > uintptr(unsafe.Pointer(es.At(i).orig)))
+	}
 }
 
-func fillTestExponentialHistogramDataPointSlice(tv ExponentialHistogramDataPointSlice) {
-	*tv.orig = make([]*otlpmetrics.ExponentialHistogramDataPoint, 7)
+func generateTestExponentialHistogramDataPointSlice() ExponentialHistogramDataPointSlice {
+	es := NewExponentialHistogramDataPointSlice()
+	fillTestExponentialHistogramDataPointSlice(es)
+	return es
+}
+
+func fillTestExponentialHistogramDataPointSlice(es ExponentialHistogramDataPointSlice) {
+	*es.orig = make([]*otlpmetrics.ExponentialHistogramDataPoint, 7)
 	for i := 0; i < 7; i++ {
-		(*tv.orig)[i] = &otlpmetrics.ExponentialHistogramDataPoint{}
-		fillTestExponentialHistogramDataPoint(newExponentialHistogramDataPoint((*tv.orig)[i]))
+		(*es.orig)[i] = &otlpmetrics.ExponentialHistogramDataPoint{}
+		fillTestExponentialHistogramDataPoint(newExponentialHistogramDataPoint((*es.orig)[i]))
 	}
 }

@@ -19,6 +19,7 @@ package pmetric
 
 import (
 	"testing"
+	"unsafe"
 
 	"github.com/stretchr/testify/assert"
 
@@ -31,16 +32,15 @@ func TestHistogramDataPointSlice(t *testing.T) {
 	es = newHistogramDataPointSlice(&[]*otlpmetrics.HistogramDataPoint{})
 	assert.Equal(t, 0, es.Len())
 
-	es.EnsureCapacity(7)
-	emptyVal := newHistogramDataPoint(&otlpmetrics.HistogramDataPoint{})
+	emptyVal := NewHistogramDataPoint()
 	testVal := generateTestHistogramDataPoint()
-	assert.Equal(t, 7, cap(*es.orig))
-	for i := 0; i < es.Len(); i++ {
+	for i := 0; i < 7; i++ {
 		el := es.AppendEmpty()
-		assert.Equal(t, emptyVal, el)
+		assert.Equal(t, emptyVal, es.At(i))
 		fillTestHistogramDataPoint(el)
-		assert.Equal(t, testVal, el)
+		assert.Equal(t, testVal, es.At(i))
 	}
+	assert.Equal(t, 7, es.Len())
 }
 
 func TestHistogramDataPointSlice_CopyTo(t *testing.T) {
@@ -119,16 +119,32 @@ func TestHistogramDataPointSlice_RemoveIf(t *testing.T) {
 	assert.Equal(t, 5, filtered.Len())
 }
 
-func generateTestHistogramDataPointSlice() HistogramDataPointSlice {
-	tv := NewHistogramDataPointSlice()
-	fillTestHistogramDataPointSlice(tv)
-	return tv
+func TestHistogramDataPointSlice_Sort(t *testing.T) {
+	es := generateTestHistogramDataPointSlice()
+	es.Sort(func(a, b HistogramDataPoint) bool {
+		return uintptr(unsafe.Pointer(a.orig)) < uintptr(unsafe.Pointer(b.orig))
+	})
+	for i := 1; i < es.Len(); i++ {
+		assert.True(t, uintptr(unsafe.Pointer(es.At(i-1).orig)) < uintptr(unsafe.Pointer(es.At(i).orig)))
+	}
+	es.Sort(func(a, b HistogramDataPoint) bool {
+		return uintptr(unsafe.Pointer(a.orig)) > uintptr(unsafe.Pointer(b.orig))
+	})
+	for i := 1; i < es.Len(); i++ {
+		assert.True(t, uintptr(unsafe.Pointer(es.At(i-1).orig)) > uintptr(unsafe.Pointer(es.At(i).orig)))
+	}
 }
 
-func fillTestHistogramDataPointSlice(tv HistogramDataPointSlice) {
-	*tv.orig = make([]*otlpmetrics.HistogramDataPoint, 7)
+func generateTestHistogramDataPointSlice() HistogramDataPointSlice {
+	es := NewHistogramDataPointSlice()
+	fillTestHistogramDataPointSlice(es)
+	return es
+}
+
+func fillTestHistogramDataPointSlice(es HistogramDataPointSlice) {
+	*es.orig = make([]*otlpmetrics.HistogramDataPoint, 7)
 	for i := 0; i < 7; i++ {
-		(*tv.orig)[i] = &otlpmetrics.HistogramDataPoint{}
-		fillTestHistogramDataPoint(newHistogramDataPoint((*tv.orig)[i]))
+		(*es.orig)[i] = &otlpmetrics.HistogramDataPoint{}
+		fillTestHistogramDataPoint(newHistogramDataPoint((*es.orig)[i]))
 	}
 }

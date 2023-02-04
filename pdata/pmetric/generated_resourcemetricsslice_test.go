@@ -19,6 +19,7 @@ package pmetric
 
 import (
 	"testing"
+	"unsafe"
 
 	"github.com/stretchr/testify/assert"
 
@@ -31,16 +32,15 @@ func TestResourceMetricsSlice(t *testing.T) {
 	es = newResourceMetricsSlice(&[]*otlpmetrics.ResourceMetrics{})
 	assert.Equal(t, 0, es.Len())
 
-	es.EnsureCapacity(7)
-	emptyVal := newResourceMetrics(&otlpmetrics.ResourceMetrics{})
+	emptyVal := NewResourceMetrics()
 	testVal := generateTestResourceMetrics()
-	assert.Equal(t, 7, cap(*es.orig))
-	for i := 0; i < es.Len(); i++ {
+	for i := 0; i < 7; i++ {
 		el := es.AppendEmpty()
-		assert.Equal(t, emptyVal, el)
+		assert.Equal(t, emptyVal, es.At(i))
 		fillTestResourceMetrics(el)
-		assert.Equal(t, testVal, el)
+		assert.Equal(t, testVal, es.At(i))
 	}
+	assert.Equal(t, 7, es.Len())
 }
 
 func TestResourceMetricsSlice_CopyTo(t *testing.T) {
@@ -119,16 +119,32 @@ func TestResourceMetricsSlice_RemoveIf(t *testing.T) {
 	assert.Equal(t, 5, filtered.Len())
 }
 
-func generateTestResourceMetricsSlice() ResourceMetricsSlice {
-	tv := NewResourceMetricsSlice()
-	fillTestResourceMetricsSlice(tv)
-	return tv
+func TestResourceMetricsSlice_Sort(t *testing.T) {
+	es := generateTestResourceMetricsSlice()
+	es.Sort(func(a, b ResourceMetrics) bool {
+		return uintptr(unsafe.Pointer(a.orig)) < uintptr(unsafe.Pointer(b.orig))
+	})
+	for i := 1; i < es.Len(); i++ {
+		assert.True(t, uintptr(unsafe.Pointer(es.At(i-1).orig)) < uintptr(unsafe.Pointer(es.At(i).orig)))
+	}
+	es.Sort(func(a, b ResourceMetrics) bool {
+		return uintptr(unsafe.Pointer(a.orig)) > uintptr(unsafe.Pointer(b.orig))
+	})
+	for i := 1; i < es.Len(); i++ {
+		assert.True(t, uintptr(unsafe.Pointer(es.At(i-1).orig)) > uintptr(unsafe.Pointer(es.At(i).orig)))
+	}
 }
 
-func fillTestResourceMetricsSlice(tv ResourceMetricsSlice) {
-	*tv.orig = make([]*otlpmetrics.ResourceMetrics, 7)
+func generateTestResourceMetricsSlice() ResourceMetricsSlice {
+	es := NewResourceMetricsSlice()
+	fillTestResourceMetricsSlice(es)
+	return es
+}
+
+func fillTestResourceMetricsSlice(es ResourceMetricsSlice) {
+	*es.orig = make([]*otlpmetrics.ResourceMetrics, 7)
 	for i := 0; i < 7; i++ {
-		(*tv.orig)[i] = &otlpmetrics.ResourceMetrics{}
-		fillTestResourceMetrics(newResourceMetrics((*tv.orig)[i]))
+		(*es.orig)[i] = &otlpmetrics.ResourceMetrics{}
+		fillTestResourceMetrics(newResourceMetrics((*es.orig)[i]))
 	}
 }

@@ -19,6 +19,7 @@ package plog
 
 import (
 	"testing"
+	"unsafe"
 
 	"github.com/stretchr/testify/assert"
 
@@ -31,16 +32,15 @@ func TestResourceLogsSlice(t *testing.T) {
 	es = newResourceLogsSlice(&[]*otlplogs.ResourceLogs{})
 	assert.Equal(t, 0, es.Len())
 
-	es.EnsureCapacity(7)
-	emptyVal := newResourceLogs(&otlplogs.ResourceLogs{})
+	emptyVal := NewResourceLogs()
 	testVal := generateTestResourceLogs()
-	assert.Equal(t, 7, cap(*es.orig))
-	for i := 0; i < es.Len(); i++ {
+	for i := 0; i < 7; i++ {
 		el := es.AppendEmpty()
-		assert.Equal(t, emptyVal, el)
+		assert.Equal(t, emptyVal, es.At(i))
 		fillTestResourceLogs(el)
-		assert.Equal(t, testVal, el)
+		assert.Equal(t, testVal, es.At(i))
 	}
+	assert.Equal(t, 7, es.Len())
 }
 
 func TestResourceLogsSlice_CopyTo(t *testing.T) {
@@ -119,16 +119,32 @@ func TestResourceLogsSlice_RemoveIf(t *testing.T) {
 	assert.Equal(t, 5, filtered.Len())
 }
 
-func generateTestResourceLogsSlice() ResourceLogsSlice {
-	tv := NewResourceLogsSlice()
-	fillTestResourceLogsSlice(tv)
-	return tv
+func TestResourceLogsSlice_Sort(t *testing.T) {
+	es := generateTestResourceLogsSlice()
+	es.Sort(func(a, b ResourceLogs) bool {
+		return uintptr(unsafe.Pointer(a.orig)) < uintptr(unsafe.Pointer(b.orig))
+	})
+	for i := 1; i < es.Len(); i++ {
+		assert.True(t, uintptr(unsafe.Pointer(es.At(i-1).orig)) < uintptr(unsafe.Pointer(es.At(i).orig)))
+	}
+	es.Sort(func(a, b ResourceLogs) bool {
+		return uintptr(unsafe.Pointer(a.orig)) > uintptr(unsafe.Pointer(b.orig))
+	})
+	for i := 1; i < es.Len(); i++ {
+		assert.True(t, uintptr(unsafe.Pointer(es.At(i-1).orig)) > uintptr(unsafe.Pointer(es.At(i).orig)))
+	}
 }
 
-func fillTestResourceLogsSlice(tv ResourceLogsSlice) {
-	*tv.orig = make([]*otlplogs.ResourceLogs, 7)
+func generateTestResourceLogsSlice() ResourceLogsSlice {
+	es := NewResourceLogsSlice()
+	fillTestResourceLogsSlice(es)
+	return es
+}
+
+func fillTestResourceLogsSlice(es ResourceLogsSlice) {
+	*es.orig = make([]*otlplogs.ResourceLogs, 7)
 	for i := 0; i < 7; i++ {
-		(*tv.orig)[i] = &otlplogs.ResourceLogs{}
-		fillTestResourceLogs(newResourceLogs((*tv.orig)[i]))
+		(*es.orig)[i] = &otlplogs.ResourceLogs{}
+		fillTestResourceLogs(newResourceLogs((*es.orig)[i]))
 	}
 }

@@ -19,6 +19,7 @@ package pmetric
 
 import (
 	"testing"
+	"unsafe"
 
 	"github.com/stretchr/testify/assert"
 
@@ -31,16 +32,15 @@ func TestNumberDataPointSlice(t *testing.T) {
 	es = newNumberDataPointSlice(&[]*otlpmetrics.NumberDataPoint{})
 	assert.Equal(t, 0, es.Len())
 
-	es.EnsureCapacity(7)
-	emptyVal := newNumberDataPoint(&otlpmetrics.NumberDataPoint{})
+	emptyVal := NewNumberDataPoint()
 	testVal := generateTestNumberDataPoint()
-	assert.Equal(t, 7, cap(*es.orig))
-	for i := 0; i < es.Len(); i++ {
+	for i := 0; i < 7; i++ {
 		el := es.AppendEmpty()
-		assert.Equal(t, emptyVal, el)
+		assert.Equal(t, emptyVal, es.At(i))
 		fillTestNumberDataPoint(el)
-		assert.Equal(t, testVal, el)
+		assert.Equal(t, testVal, es.At(i))
 	}
+	assert.Equal(t, 7, es.Len())
 }
 
 func TestNumberDataPointSlice_CopyTo(t *testing.T) {
@@ -119,16 +119,32 @@ func TestNumberDataPointSlice_RemoveIf(t *testing.T) {
 	assert.Equal(t, 5, filtered.Len())
 }
 
-func generateTestNumberDataPointSlice() NumberDataPointSlice {
-	tv := NewNumberDataPointSlice()
-	fillTestNumberDataPointSlice(tv)
-	return tv
+func TestNumberDataPointSlice_Sort(t *testing.T) {
+	es := generateTestNumberDataPointSlice()
+	es.Sort(func(a, b NumberDataPoint) bool {
+		return uintptr(unsafe.Pointer(a.orig)) < uintptr(unsafe.Pointer(b.orig))
+	})
+	for i := 1; i < es.Len(); i++ {
+		assert.True(t, uintptr(unsafe.Pointer(es.At(i-1).orig)) < uintptr(unsafe.Pointer(es.At(i).orig)))
+	}
+	es.Sort(func(a, b NumberDataPoint) bool {
+		return uintptr(unsafe.Pointer(a.orig)) > uintptr(unsafe.Pointer(b.orig))
+	})
+	for i := 1; i < es.Len(); i++ {
+		assert.True(t, uintptr(unsafe.Pointer(es.At(i-1).orig)) > uintptr(unsafe.Pointer(es.At(i).orig)))
+	}
 }
 
-func fillTestNumberDataPointSlice(tv NumberDataPointSlice) {
-	*tv.orig = make([]*otlpmetrics.NumberDataPoint, 7)
+func generateTestNumberDataPointSlice() NumberDataPointSlice {
+	es := NewNumberDataPointSlice()
+	fillTestNumberDataPointSlice(es)
+	return es
+}
+
+func fillTestNumberDataPointSlice(es NumberDataPointSlice) {
+	*es.orig = make([]*otlpmetrics.NumberDataPoint, 7)
 	for i := 0; i < 7; i++ {
-		(*tv.orig)[i] = &otlpmetrics.NumberDataPoint{}
-		fillTestNumberDataPoint(newNumberDataPoint((*tv.orig)[i]))
+		(*es.orig)[i] = &otlpmetrics.NumberDataPoint{}
+		fillTestNumberDataPoint(newNumberDataPoint((*es.orig)[i]))
 	}
 }

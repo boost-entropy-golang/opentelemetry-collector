@@ -19,6 +19,7 @@ package ptrace
 
 import (
 	"testing"
+	"unsafe"
 
 	"github.com/stretchr/testify/assert"
 
@@ -31,16 +32,15 @@ func TestSpanLinkSlice(t *testing.T) {
 	es = newSpanLinkSlice(&[]*otlptrace.Span_Link{})
 	assert.Equal(t, 0, es.Len())
 
-	es.EnsureCapacity(7)
-	emptyVal := newSpanLink(&otlptrace.Span_Link{})
+	emptyVal := NewSpanLink()
 	testVal := generateTestSpanLink()
-	assert.Equal(t, 7, cap(*es.orig))
-	for i := 0; i < es.Len(); i++ {
+	for i := 0; i < 7; i++ {
 		el := es.AppendEmpty()
-		assert.Equal(t, emptyVal, el)
+		assert.Equal(t, emptyVal, es.At(i))
 		fillTestSpanLink(el)
-		assert.Equal(t, testVal, el)
+		assert.Equal(t, testVal, es.At(i))
 	}
+	assert.Equal(t, 7, es.Len())
 }
 
 func TestSpanLinkSlice_CopyTo(t *testing.T) {
@@ -119,16 +119,32 @@ func TestSpanLinkSlice_RemoveIf(t *testing.T) {
 	assert.Equal(t, 5, filtered.Len())
 }
 
-func generateTestSpanLinkSlice() SpanLinkSlice {
-	tv := NewSpanLinkSlice()
-	fillTestSpanLinkSlice(tv)
-	return tv
+func TestSpanLinkSlice_Sort(t *testing.T) {
+	es := generateTestSpanLinkSlice()
+	es.Sort(func(a, b SpanLink) bool {
+		return uintptr(unsafe.Pointer(a.orig)) < uintptr(unsafe.Pointer(b.orig))
+	})
+	for i := 1; i < es.Len(); i++ {
+		assert.True(t, uintptr(unsafe.Pointer(es.At(i-1).orig)) < uintptr(unsafe.Pointer(es.At(i).orig)))
+	}
+	es.Sort(func(a, b SpanLink) bool {
+		return uintptr(unsafe.Pointer(a.orig)) > uintptr(unsafe.Pointer(b.orig))
+	})
+	for i := 1; i < es.Len(); i++ {
+		assert.True(t, uintptr(unsafe.Pointer(es.At(i-1).orig)) > uintptr(unsafe.Pointer(es.At(i).orig)))
+	}
 }
 
-func fillTestSpanLinkSlice(tv SpanLinkSlice) {
-	*tv.orig = make([]*otlptrace.Span_Link, 7)
+func generateTestSpanLinkSlice() SpanLinkSlice {
+	es := NewSpanLinkSlice()
+	fillTestSpanLinkSlice(es)
+	return es
+}
+
+func fillTestSpanLinkSlice(es SpanLinkSlice) {
+	*es.orig = make([]*otlptrace.Span_Link, 7)
 	for i := 0; i < 7; i++ {
-		(*tv.orig)[i] = &otlptrace.Span_Link{}
-		fillTestSpanLink(newSpanLink((*tv.orig)[i]))
+		(*es.orig)[i] = &otlptrace.Span_Link{}
+		fillTestSpanLink(newSpanLink((*es.orig)[i]))
 	}
 }

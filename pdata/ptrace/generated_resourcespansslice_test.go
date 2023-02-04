@@ -19,6 +19,7 @@ package ptrace
 
 import (
 	"testing"
+	"unsafe"
 
 	"github.com/stretchr/testify/assert"
 
@@ -31,16 +32,15 @@ func TestResourceSpansSlice(t *testing.T) {
 	es = newResourceSpansSlice(&[]*otlptrace.ResourceSpans{})
 	assert.Equal(t, 0, es.Len())
 
-	es.EnsureCapacity(7)
-	emptyVal := newResourceSpans(&otlptrace.ResourceSpans{})
+	emptyVal := NewResourceSpans()
 	testVal := generateTestResourceSpans()
-	assert.Equal(t, 7, cap(*es.orig))
-	for i := 0; i < es.Len(); i++ {
+	for i := 0; i < 7; i++ {
 		el := es.AppendEmpty()
-		assert.Equal(t, emptyVal, el)
+		assert.Equal(t, emptyVal, es.At(i))
 		fillTestResourceSpans(el)
-		assert.Equal(t, testVal, el)
+		assert.Equal(t, testVal, es.At(i))
 	}
+	assert.Equal(t, 7, es.Len())
 }
 
 func TestResourceSpansSlice_CopyTo(t *testing.T) {
@@ -119,16 +119,32 @@ func TestResourceSpansSlice_RemoveIf(t *testing.T) {
 	assert.Equal(t, 5, filtered.Len())
 }
 
-func generateTestResourceSpansSlice() ResourceSpansSlice {
-	tv := NewResourceSpansSlice()
-	fillTestResourceSpansSlice(tv)
-	return tv
+func TestResourceSpansSlice_Sort(t *testing.T) {
+	es := generateTestResourceSpansSlice()
+	es.Sort(func(a, b ResourceSpans) bool {
+		return uintptr(unsafe.Pointer(a.orig)) < uintptr(unsafe.Pointer(b.orig))
+	})
+	for i := 1; i < es.Len(); i++ {
+		assert.True(t, uintptr(unsafe.Pointer(es.At(i-1).orig)) < uintptr(unsafe.Pointer(es.At(i).orig)))
+	}
+	es.Sort(func(a, b ResourceSpans) bool {
+		return uintptr(unsafe.Pointer(a.orig)) > uintptr(unsafe.Pointer(b.orig))
+	})
+	for i := 1; i < es.Len(); i++ {
+		assert.True(t, uintptr(unsafe.Pointer(es.At(i-1).orig)) > uintptr(unsafe.Pointer(es.At(i).orig)))
+	}
 }
 
-func fillTestResourceSpansSlice(tv ResourceSpansSlice) {
-	*tv.orig = make([]*otlptrace.ResourceSpans, 7)
+func generateTestResourceSpansSlice() ResourceSpansSlice {
+	es := NewResourceSpansSlice()
+	fillTestResourceSpansSlice(es)
+	return es
+}
+
+func fillTestResourceSpansSlice(es ResourceSpansSlice) {
+	*es.orig = make([]*otlptrace.ResourceSpans, 7)
 	for i := 0; i < 7; i++ {
-		(*tv.orig)[i] = &otlptrace.ResourceSpans{}
-		fillTestResourceSpans(newResourceSpans((*tv.orig)[i]))
+		(*es.orig)[i] = &otlptrace.ResourceSpans{}
+		fillTestResourceSpans(newResourceSpans((*es.orig)[i]))
 	}
 }

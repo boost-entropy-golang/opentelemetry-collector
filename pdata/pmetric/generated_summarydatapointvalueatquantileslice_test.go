@@ -19,6 +19,7 @@ package pmetric
 
 import (
 	"testing"
+	"unsafe"
 
 	"github.com/stretchr/testify/assert"
 
@@ -31,16 +32,15 @@ func TestSummaryDataPointValueAtQuantileSlice(t *testing.T) {
 	es = newSummaryDataPointValueAtQuantileSlice(&[]*otlpmetrics.SummaryDataPoint_ValueAtQuantile{})
 	assert.Equal(t, 0, es.Len())
 
-	es.EnsureCapacity(7)
-	emptyVal := newSummaryDataPointValueAtQuantile(&otlpmetrics.SummaryDataPoint_ValueAtQuantile{})
+	emptyVal := NewSummaryDataPointValueAtQuantile()
 	testVal := generateTestSummaryDataPointValueAtQuantile()
-	assert.Equal(t, 7, cap(*es.orig))
-	for i := 0; i < es.Len(); i++ {
+	for i := 0; i < 7; i++ {
 		el := es.AppendEmpty()
-		assert.Equal(t, emptyVal, el)
+		assert.Equal(t, emptyVal, es.At(i))
 		fillTestSummaryDataPointValueAtQuantile(el)
-		assert.Equal(t, testVal, el)
+		assert.Equal(t, testVal, es.At(i))
 	}
+	assert.Equal(t, 7, es.Len())
 }
 
 func TestSummaryDataPointValueAtQuantileSlice_CopyTo(t *testing.T) {
@@ -119,16 +119,32 @@ func TestSummaryDataPointValueAtQuantileSlice_RemoveIf(t *testing.T) {
 	assert.Equal(t, 5, filtered.Len())
 }
 
-func generateTestSummaryDataPointValueAtQuantileSlice() SummaryDataPointValueAtQuantileSlice {
-	tv := NewSummaryDataPointValueAtQuantileSlice()
-	fillTestSummaryDataPointValueAtQuantileSlice(tv)
-	return tv
+func TestSummaryDataPointValueAtQuantileSlice_Sort(t *testing.T) {
+	es := generateTestSummaryDataPointValueAtQuantileSlice()
+	es.Sort(func(a, b SummaryDataPointValueAtQuantile) bool {
+		return uintptr(unsafe.Pointer(a.orig)) < uintptr(unsafe.Pointer(b.orig))
+	})
+	for i := 1; i < es.Len(); i++ {
+		assert.True(t, uintptr(unsafe.Pointer(es.At(i-1).orig)) < uintptr(unsafe.Pointer(es.At(i).orig)))
+	}
+	es.Sort(func(a, b SummaryDataPointValueAtQuantile) bool {
+		return uintptr(unsafe.Pointer(a.orig)) > uintptr(unsafe.Pointer(b.orig))
+	})
+	for i := 1; i < es.Len(); i++ {
+		assert.True(t, uintptr(unsafe.Pointer(es.At(i-1).orig)) > uintptr(unsafe.Pointer(es.At(i).orig)))
+	}
 }
 
-func fillTestSummaryDataPointValueAtQuantileSlice(tv SummaryDataPointValueAtQuantileSlice) {
-	*tv.orig = make([]*otlpmetrics.SummaryDataPoint_ValueAtQuantile, 7)
+func generateTestSummaryDataPointValueAtQuantileSlice() SummaryDataPointValueAtQuantileSlice {
+	es := NewSummaryDataPointValueAtQuantileSlice()
+	fillTestSummaryDataPointValueAtQuantileSlice(es)
+	return es
+}
+
+func fillTestSummaryDataPointValueAtQuantileSlice(es SummaryDataPointValueAtQuantileSlice) {
+	*es.orig = make([]*otlpmetrics.SummaryDataPoint_ValueAtQuantile, 7)
 	for i := 0; i < 7; i++ {
-		(*tv.orig)[i] = &otlpmetrics.SummaryDataPoint_ValueAtQuantile{}
-		fillTestSummaryDataPointValueAtQuantile(newSummaryDataPointValueAtQuantile((*tv.orig)[i]))
+		(*es.orig)[i] = &otlpmetrics.SummaryDataPoint_ValueAtQuantile{}
+		fillTestSummaryDataPointValueAtQuantile(newSummaryDataPointValueAtQuantile((*es.orig)[i]))
 	}
 }

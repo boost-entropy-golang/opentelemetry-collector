@@ -19,6 +19,7 @@ package plog
 
 import (
 	"testing"
+	"unsafe"
 
 	"github.com/stretchr/testify/assert"
 
@@ -31,16 +32,15 @@ func TestLogRecordSlice(t *testing.T) {
 	es = newLogRecordSlice(&[]*otlplogs.LogRecord{})
 	assert.Equal(t, 0, es.Len())
 
-	es.EnsureCapacity(7)
-	emptyVal := newLogRecord(&otlplogs.LogRecord{})
+	emptyVal := NewLogRecord()
 	testVal := generateTestLogRecord()
-	assert.Equal(t, 7, cap(*es.orig))
-	for i := 0; i < es.Len(); i++ {
+	for i := 0; i < 7; i++ {
 		el := es.AppendEmpty()
-		assert.Equal(t, emptyVal, el)
+		assert.Equal(t, emptyVal, es.At(i))
 		fillTestLogRecord(el)
-		assert.Equal(t, testVal, el)
+		assert.Equal(t, testVal, es.At(i))
 	}
+	assert.Equal(t, 7, es.Len())
 }
 
 func TestLogRecordSlice_CopyTo(t *testing.T) {
@@ -119,16 +119,32 @@ func TestLogRecordSlice_RemoveIf(t *testing.T) {
 	assert.Equal(t, 5, filtered.Len())
 }
 
-func generateTestLogRecordSlice() LogRecordSlice {
-	tv := NewLogRecordSlice()
-	fillTestLogRecordSlice(tv)
-	return tv
+func TestLogRecordSlice_Sort(t *testing.T) {
+	es := generateTestLogRecordSlice()
+	es.Sort(func(a, b LogRecord) bool {
+		return uintptr(unsafe.Pointer(a.orig)) < uintptr(unsafe.Pointer(b.orig))
+	})
+	for i := 1; i < es.Len(); i++ {
+		assert.True(t, uintptr(unsafe.Pointer(es.At(i-1).orig)) < uintptr(unsafe.Pointer(es.At(i).orig)))
+	}
+	es.Sort(func(a, b LogRecord) bool {
+		return uintptr(unsafe.Pointer(a.orig)) > uintptr(unsafe.Pointer(b.orig))
+	})
+	for i := 1; i < es.Len(); i++ {
+		assert.True(t, uintptr(unsafe.Pointer(es.At(i-1).orig)) > uintptr(unsafe.Pointer(es.At(i).orig)))
+	}
 }
 
-func fillTestLogRecordSlice(tv LogRecordSlice) {
-	*tv.orig = make([]*otlplogs.LogRecord, 7)
+func generateTestLogRecordSlice() LogRecordSlice {
+	es := NewLogRecordSlice()
+	fillTestLogRecordSlice(es)
+	return es
+}
+
+func fillTestLogRecordSlice(es LogRecordSlice) {
+	*es.orig = make([]*otlplogs.LogRecord, 7)
 	for i := 0; i < 7; i++ {
-		(*tv.orig)[i] = &otlplogs.LogRecord{}
-		fillTestLogRecord(newLogRecord((*tv.orig)[i]))
+		(*es.orig)[i] = &otlplogs.LogRecord{}
+		fillTestLogRecord(newLogRecord((*es.orig)[i]))
 	}
 }
