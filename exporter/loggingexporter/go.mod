@@ -8,6 +8,7 @@ require (
 	go.opentelemetry.io/collector/component v0.72.0
 	go.opentelemetry.io/collector/confmap v0.72.0
 	go.opentelemetry.io/collector/consumer v0.72.0
+	go.opentelemetry.io/collector/exporter v0.0.0-20230303211526-ec5d71fec2da
 	go.opentelemetry.io/collector/pdata v1.0.0-rc6
 	go.uber.org/zap v1.24.0
 	golang.org/x/sys v0.5.0
@@ -50,6 +51,8 @@ replace go.opentelemetry.io/collector/component => ../../component
 replace go.opentelemetry.io/collector/confmap => ../../confmap
 
 replace go.opentelemetry.io/collector/consumer => ../../consumer
+
+replace go.opentelemetry.io/collector/exporter => ../
 
 replace go.opentelemetry.io/collector/featuregate => ../../featuregate
 

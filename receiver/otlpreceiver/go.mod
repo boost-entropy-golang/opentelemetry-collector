@@ -49,6 +49,7 @@ require (
 	github.com/prometheus/statsd_exporter v0.22.7 // indirect
 	github.com/rs/cors v1.8.3 // indirect
 	go.opencensus.io v0.24.0 // indirect
+	go.opentelemetry.io/collector/exporter v0.0.0-20230303211526-ec5d71fec2da // indirect
 	go.opentelemetry.io/collector/featuregate v0.72.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.39.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.39.0 // indirect
@@ -72,6 +73,8 @@ replace go.opentelemetry.io/collector => ../../
 replace go.opentelemetry.io/collector/component => ../../component
 
 replace go.opentelemetry.io/collector/confmap => ../../confmap
+
+replace go.opentelemetry.io/collector/exporter => ../../exporter
 
 replace go.opentelemetry.io/collector/featuregate => ../../featuregate
 
