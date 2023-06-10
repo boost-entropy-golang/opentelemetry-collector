@@ -63,6 +63,11 @@ updates:
       interval: "weekly"
       day: "wednesday"
   - package-ecosystem: "gomod"
+    directory: "/extension"
+    schedule:
+      interval: "weekly"
+      day: "wednesday"
+  - package-ecosystem: "gomod"
     directory: "/extension/ballastextension"
     schedule:
       interval: "weekly"
@@ -84,6 +89,11 @@ updates:
       day: "wednesday"
   - package-ecosystem: "gomod"
     directory: "/pdata"
+    schedule:
+      interval: "weekly"
+      day: "wednesday"
+  - package-ecosystem: "gomod"
+    directory: "/processor"
     schedule:
       interval: "weekly"
       day: "wednesday"

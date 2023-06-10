@@ -30,10 +30,12 @@ replaces:
   - go.opentelemetry.io/collector/exporter/loggingexporter => ../../exporter/loggingexporter
   - go.opentelemetry.io/collector/exporter/otlpexporter => ../../exporter/otlpexporter
   - go.opentelemetry.io/collector/exporter/otlphttpexporter => ../../exporter/otlphttpexporter
+  - go.opentelemetry.io/collector/extension => ../../extension
   - go.opentelemetry.io/collector/extension/ballastextension => ../../extension/ballastextension
   - go.opentelemetry.io/collector/extension/zpagesextension => ../../extension/zpagesextension
   - go.opentelemetry.io/collector/featuregate => ../../featuregate
   - go.opentelemetry.io/collector/pdata => ../../pdata
+  - go.opentelemetry.io/collector/processor => ../../processor
   - go.opentelemetry.io/collector/receiver => ../../receiver
   - go.opentelemetry.io/collector/receiver/otlpreceiver => ../../receiver/otlpreceiver
   - go.opentelemetry.io/collector/processor/batchprocessor => ../../processor/batchprocessor

@@ -21,9 +21,11 @@ require (
 	go.opentelemetry.io/collector/confmap v0.79.0
 	go.opentelemetry.io/collector/consumer v0.79.0
 	go.opentelemetry.io/collector/exporter v0.79.0
+	go.opentelemetry.io/collector/extension v0.0.0-20230609200026-525adf4a682a
 	go.opentelemetry.io/collector/extension/zpagesextension v0.79.0
 	go.opentelemetry.io/collector/featuregate v1.0.0-rcv0012
 	go.opentelemetry.io/collector/pdata v1.0.0-rcv0012
+	go.opentelemetry.io/collector/processor v0.0.0-20230609193203-89d1060c7606
 	go.opentelemetry.io/collector/receiver v0.79.0
 	go.opentelemetry.io/collector/semconv v0.79.0
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.42.0
@@ -94,11 +96,15 @@ replace go.opentelemetry.io/collector/consumer => ./consumer
 
 replace go.opentelemetry.io/collector/exporter => ./exporter
 
+replace go.opentelemetry.io/collector/extension => ./extension
+
 replace go.opentelemetry.io/collector/featuregate => ./featuregate
 
 replace go.opentelemetry.io/collector/semconv => ./semconv
 
 replace go.opentelemetry.io/collector/pdata => ./pdata
+
+replace go.opentelemetry.io/collector/processor => ./processor
 
 replace go.opentelemetry.io/collector/receiver => ./receiver
 

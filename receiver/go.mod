@@ -44,6 +44,7 @@ require (
 	go.opentelemetry.io/collector/confmap v0.79.0 // indirect
 	go.opentelemetry.io/collector/exporter v0.79.0 // indirect
 	go.opentelemetry.io/collector/featuregate v1.0.0-rcv0012 // indirect
+	go.opentelemetry.io/collector/processor v0.0.0-20230609193203-89d1060c7606 // indirect
 	go.opentelemetry.io/otel/exporters/prometheus v0.39.0 // indirect
 	go.opentelemetry.io/otel/metric v1.16.0 // indirect
 	go.opentelemetry.io/otel/sdk/metric v0.39.0 // indirect
@@ -69,11 +70,15 @@ replace go.opentelemetry.io/collector/consumer => ../consumer
 
 replace go.opentelemetry.io/collector/exporter => ../exporter
 
+replace go.opentelemetry.io/collector/extension => ../extension
+
 replace go.opentelemetry.io/collector/extension/zpagesextension => ../extension/zpagesextension
 
 replace go.opentelemetry.io/collector/featuregate => ../featuregate
 
 replace go.opentelemetry.io/collector/pdata => ../pdata
+
+replace go.opentelemetry.io/collector/processor => ../processor
 
 replace go.opentelemetry.io/collector/semconv => ../semconv
 

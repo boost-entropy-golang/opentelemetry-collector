@@ -13,8 +13,10 @@ require (
 	go.opentelemetry.io/collector/exporter/loggingexporter v0.79.0
 	go.opentelemetry.io/collector/exporter/otlpexporter v0.79.0
 	go.opentelemetry.io/collector/exporter/otlphttpexporter v0.79.0
+	go.opentelemetry.io/collector/extension v0.0.0-20230609200026-525adf4a682a
 	go.opentelemetry.io/collector/extension/ballastextension v0.79.0
 	go.opentelemetry.io/collector/extension/zpagesextension v0.79.0
+	go.opentelemetry.io/collector/processor v0.0.0-20230609193203-89d1060c7606
 	go.opentelemetry.io/collector/processor/batchprocessor v0.79.0
 	go.opentelemetry.io/collector/processor/memorylimiterprocessor v0.79.0
 	go.opentelemetry.io/collector/receiver v0.79.0
@@ -115,6 +117,8 @@ replace go.opentelemetry.io/collector/exporter/otlpexporter => ../../exporter/ot
 
 replace go.opentelemetry.io/collector/exporter/otlphttpexporter => ../../exporter/otlphttpexporter
 
+replace go.opentelemetry.io/collector/extension => ../../extension
+
 replace go.opentelemetry.io/collector/extension/ballastextension => ../../extension/ballastextension
 
 replace go.opentelemetry.io/collector/extension/zpagesextension => ../../extension/zpagesextension
@@ -122,6 +126,8 @@ replace go.opentelemetry.io/collector/extension/zpagesextension => ../../extensi
 replace go.opentelemetry.io/collector/featuregate => ../../featuregate
 
 replace go.opentelemetry.io/collector/pdata => ../../pdata
+
+replace go.opentelemetry.io/collector/processor => ../../processor
 
 replace go.opentelemetry.io/collector/receiver => ../../receiver
 
