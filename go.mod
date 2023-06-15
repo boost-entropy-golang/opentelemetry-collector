@@ -7,7 +7,7 @@ require (
 	github.com/fsnotify/fsnotify v1.6.0
 	github.com/golang/snappy v0.0.4
 	github.com/google/uuid v1.3.0
-	github.com/klauspost/compress v1.16.5
+	github.com/klauspost/compress v1.16.6
 	github.com/mostynb/go-grpc-compression v1.1.19
 	github.com/prometheus/client_golang v1.15.1
 	github.com/prometheus/client_model v0.4.0
@@ -22,6 +22,7 @@ require (
 	go.opentelemetry.io/collector/consumer v0.79.0
 	go.opentelemetry.io/collector/exporter v0.79.0
 	go.opentelemetry.io/collector/extension v0.0.0-20230609200026-525adf4a682a
+	go.opentelemetry.io/collector/extension/auth v0.0.0-00010101000000-000000000000
 	go.opentelemetry.io/collector/extension/zpagesextension v0.79.0
 	go.opentelemetry.io/collector/featuregate v1.0.0-rcv0012
 	go.opentelemetry.io/collector/pdata v1.0.0-rcv0012
@@ -40,8 +41,8 @@ require (
 	go.opentelemetry.io/otel/trace v1.16.0
 	go.uber.org/multierr v1.11.0
 	go.uber.org/zap v1.24.0
-	golang.org/x/net v0.10.0
-	golang.org/x/sys v0.8.0
+	golang.org/x/net v0.11.0
+	golang.org/x/sys v0.9.0
 	gonum.org/v1/gonum v0.13.0
 	google.golang.org/grpc v1.55.0
 	gopkg.in/yaml.v3 v3.0.1
@@ -83,7 +84,7 @@ require (
 	github.com/yusufpapurcu/wmi v1.2.3 // indirect
 	go.opentelemetry.io/contrib/zpages v0.42.0 // indirect
 	go.uber.org/atomic v1.10.0 // indirect
-	golang.org/x/text v0.9.0 // indirect
+	golang.org/x/text v0.10.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20230530153820-e85fd2cbaebc // indirect
 	google.golang.org/protobuf v1.30.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
@@ -98,6 +99,8 @@ replace go.opentelemetry.io/collector/consumer => ./consumer
 replace go.opentelemetry.io/collector/exporter => ./exporter
 
 replace go.opentelemetry.io/collector/extension => ./extension
+
+replace go.opentelemetry.io/collector/extension/auth => ./extension/auth
 
 replace go.opentelemetry.io/collector/featuregate => ./featuregate
 
