@@ -6,6 +6,9 @@ require (
 	github.com/stretchr/testify v1.8.4
 	go.opentelemetry.io/collector v0.79.0
 	go.opentelemetry.io/collector/component v0.79.0
+	go.opentelemetry.io/collector/config/configcompression v0.0.0-00010101000000-000000000000
+	go.opentelemetry.io/collector/config/configopaque v0.0.0-00010101000000-000000000000
+	go.opentelemetry.io/collector/config/configtls v0.0.0-00010101000000-000000000000
 	go.opentelemetry.io/collector/confmap v0.79.0
 	go.opentelemetry.io/collector/consumer v0.79.0
 	go.opentelemetry.io/collector/exporter v0.79.0
@@ -14,7 +17,7 @@ require (
 	go.opentelemetry.io/collector/receiver/otlpreceiver v0.79.0
 	go.uber.org/zap v1.24.0
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20230530153820-e85fd2cbaebc
-	google.golang.org/grpc v1.55.0
+	google.golang.org/grpc v1.56.0
 	google.golang.org/protobuf v1.30.0
 )
 
@@ -40,6 +43,9 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rs/cors v1.9.0 // indirect
 	go.opencensus.io v0.24.0 // indirect
+	go.opentelemetry.io/collector/config/configauth v0.0.0-00010101000000-000000000000 // indirect
+	go.opentelemetry.io/collector/config/confignet v0.0.0-00010101000000-000000000000 // indirect
+	go.opentelemetry.io/collector/config/configtelemetry v0.0.0-00010101000000-000000000000 // indirect
 	go.opentelemetry.io/collector/extension v0.0.0-20230609200026-525adf4a682a // indirect
 	go.opentelemetry.io/collector/extension/auth v0.0.0-20230615165320-df20186ee21c // indirect
 	go.opentelemetry.io/collector/featuregate v1.0.0-rcv0012 // indirect
@@ -62,7 +68,21 @@ replace go.opentelemetry.io/collector => ../../
 
 replace go.opentelemetry.io/collector/component => ../../component
 
+replace go.opentelemetry.io/collector/config/configauth => ../../config/configauth
+
+replace go.opentelemetry.io/collector/config/configcompression => ../../config/configcompression
+
+replace go.opentelemetry.io/collector/config/confignet => ../../config/confignet
+
+replace go.opentelemetry.io/collector/config/configopaque => ../../config/configopaque
+
+replace go.opentelemetry.io/collector/config/configtelemetry => ../../config/configtelemetry
+
+replace go.opentelemetry.io/collector/config/configtls => ../../config/configtls
+
 replace go.opentelemetry.io/collector/confmap => ../../confmap
+
+replace go.opentelemetry.io/collector/connector => ../../connector
 
 replace go.opentelemetry.io/collector/exporter => ../
 
@@ -92,5 +112,3 @@ retract (
 )
 
 replace cloud.google.com/go => cloud.google.com/go v0.110.2
-
-replace go.opentelemetry.io/collector/connector => ../../connector
