@@ -9,19 +9,25 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"net/url"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/bridge/opencensus"
+	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc"
+	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp"
 	otelprom "go.opentelemetry.io/otel/exporters/prometheus"
 	"go.opentelemetry.io/otel/exporters/stdout/stdoutmetric"
+	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
 	"go.opentelemetry.io/otel/sdk/instrumentation"
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/metric/aggregation"
 	"go.opentelemetry.io/otel/sdk/resource"
+	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 
 	"go.opentelemetry.io/collector/obsreport"
 	semconv "go.opentelemetry.io/collector/semconv/v1.18.0"
@@ -35,6 +41,10 @@ const (
 
 	// http Instrumentation Name
 	HTTPInstrumentation = "go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+
+	// supported protocols
+	protocolProtobufHTTP = "http/protobuf"
+	protocolProtobufGRPC = "grpc/protobuf"
 )
 
 var (
@@ -50,6 +60,9 @@ var (
 		attribute.String(semconv.AttributeNetHostName, ""),
 		attribute.String(semconv.AttributeNetHostPort, ""),
 	}
+
+	errNoValidMetricExporter = errors.New("no valid metric exporter")
+	errNoValidSpanExporter   = errors.New("no valid span exporter")
 )
 
 func InitMetricReader(ctx context.Context, reader telemetry.MetricReader, asyncErrorChannel chan error) (sdkmetric.Reader, *http.Server, error) {
@@ -68,6 +81,56 @@ func InitMetricReader(ctx context.Context, reader telemetry.MetricReader, asyncE
 		return initPeriodicExporter(ctx, reader.Periodic.Exporter, opts...)
 	}
 	return nil, nil, fmt.Errorf("unsupported metric reader type %v", reader)
+}
+
+func InitSpanProcessor(_ context.Context, processor telemetry.SpanProcessor) (sdktrace.SpanProcessor, error) {
+	if processor.Batch != nil {
+		if processor.Batch.Exporter.Console != nil {
+			exp, err := stdouttrace.New(
+				stdouttrace.WithPrettyPrint(),
+			)
+			if err != nil {
+				return nil, err
+			}
+			opts := []sdktrace.BatchSpanProcessorOption{}
+			if processor.Batch.ExportTimeout != nil {
+				if *processor.Batch.ExportTimeout < 0 {
+					return nil, fmt.Errorf("invalid export timeout %d", *processor.Batch.ExportTimeout)
+				}
+				opts = append(opts, sdktrace.WithExportTimeout(time.Millisecond*time.Duration(*processor.Batch.ExportTimeout)))
+			}
+			if processor.Batch.MaxExportBatchSize != nil {
+				if *processor.Batch.MaxExportBatchSize < 0 {
+					return nil, fmt.Errorf("invalid batch size %d", *processor.Batch.MaxExportBatchSize)
+				}
+				opts = append(opts, sdktrace.WithMaxExportBatchSize(*processor.Batch.MaxExportBatchSize))
+			}
+			if processor.Batch.MaxQueueSize != nil {
+				if *processor.Batch.MaxQueueSize < 0 {
+					return nil, fmt.Errorf("invalid queue size %d", *processor.Batch.MaxQueueSize)
+				}
+				opts = append(opts, sdktrace.WithMaxQueueSize(*processor.Batch.MaxQueueSize))
+			}
+			if processor.Batch.ScheduleDelay != nil {
+				if *processor.Batch.ScheduleDelay < 0 {
+					return nil, fmt.Errorf("invalid schedule delay %d", *processor.Batch.ScheduleDelay)
+				}
+				opts = append(opts, sdktrace.WithBatchTimeout(time.Millisecond*time.Duration(*processor.Batch.ScheduleDelay)))
+			}
+			return sdktrace.NewBatchSpanProcessor(exp, opts...), nil
+		}
+		return nil, errNoValidSpanExporter
+	}
+	return nil, fmt.Errorf("unsupported span processor type %v", processor)
+}
+
+func InitTracerProvider(res *resource.Resource, options []sdktrace.TracerProviderOption) (*sdktrace.TracerProvider, error) {
+	opts := []sdktrace.TracerProviderOption{
+		sdktrace.WithResource(res),
+	}
+
+	opts = append(opts, options...)
+	return sdktrace.NewTracerProvider(opts...), nil
 }
 
 func InitOpenTelemetry(res *resource.Resource, options []sdkmetric.Option, disableHighCardinality bool) (*sdkmetric.MeterProvider, error) {
@@ -167,9 +230,10 @@ func initPullExporter(exporter telemetry.MetricExporter, asyncErrorChannel chan 
 	if exporter.Prometheus != nil {
 		return initPrometheusExporter(exporter.Prometheus, asyncErrorChannel)
 	}
-	return nil, nil, fmt.Errorf("no valid exporter")
+	return nil, nil, errNoValidMetricExporter
 }
-func initPeriodicExporter(_ context.Context, exporter telemetry.MetricExporter, opts ...sdkmetric.PeriodicReaderOption) (sdkmetric.Reader, *http.Server, error) {
+
+func initPeriodicExporter(ctx context.Context, exporter telemetry.MetricExporter, opts ...sdkmetric.PeriodicReaderOption) (sdkmetric.Reader, *http.Server, error) {
 	if exporter.Console != nil {
 		enc := json.NewEncoder(os.Stdout)
 		enc.SetIndent("", "  ")
@@ -182,5 +246,92 @@ func initPeriodicExporter(_ context.Context, exporter telemetry.MetricExporter, 
 		}
 		return sdkmetric.NewPeriodicReader(exp, opts...), nil, nil
 	}
-	return nil, nil, fmt.Errorf("no valid exporter")
+	if exporter.Otlp != nil {
+		var err error
+		var exp sdkmetric.Exporter
+		switch exporter.Otlp.Protocol {
+		case protocolProtobufHTTP:
+			exp, err = initOTLPHTTPExporter(ctx, exporter.Otlp)
+		case protocolProtobufGRPC:
+			exp, err = initOTLPgRPCExporter(ctx, exporter.Otlp)
+		default:
+			return nil, nil, fmt.Errorf("unsupported protocol %s", exporter.Otlp.Protocol)
+		}
+		if err != nil {
+			return nil, nil, err
+		}
+		return sdkmetric.NewPeriodicReader(exp, opts...), nil, nil
+	}
+	return nil, nil, errNoValidMetricExporter
+}
+
+func normalizeEndpoint(endpoint string) string {
+	if !strings.HasPrefix(endpoint, "https://") && !strings.HasPrefix(endpoint, "http://") {
+		return fmt.Sprintf("http://%s", endpoint)
+	}
+	return endpoint
+}
+
+func initOTLPgRPCExporter(ctx context.Context, otlpConfig *telemetry.OtlpMetric) (sdkmetric.Exporter, error) {
+	opts := []otlpmetricgrpc.Option{}
+
+	if len(otlpConfig.Endpoint) > 0 {
+		u, err := url.ParseRequestURI(normalizeEndpoint(otlpConfig.Endpoint))
+		if err != nil {
+			return nil, err
+		}
+		opts = append(opts, otlpmetricgrpc.WithEndpoint(u.Host))
+		if u.Scheme == "http" {
+			opts = append(opts, otlpmetricgrpc.WithInsecure())
+		}
+	}
+
+	if otlpConfig.Compression != nil {
+		opts = append(opts, otlpmetricgrpc.WithCompressor(*otlpConfig.Compression))
+	}
+	if otlpConfig.Timeout != nil {
+		opts = append(opts, otlpmetricgrpc.WithTimeout(time.Millisecond*time.Duration(*otlpConfig.Timeout)))
+	}
+	if len(otlpConfig.Headers) > 0 {
+		opts = append(opts, otlpmetricgrpc.WithHeaders(otlpConfig.Headers))
+	}
+
+	return otlpmetricgrpc.New(ctx, opts...)
+}
+
+func initOTLPHTTPExporter(ctx context.Context, otlpConfig *telemetry.OtlpMetric) (sdkmetric.Exporter, error) {
+	opts := []otlpmetrichttp.Option{}
+
+	if len(otlpConfig.Endpoint) > 0 {
+		u, err := url.ParseRequestURI(normalizeEndpoint(otlpConfig.Endpoint))
+		if err != nil {
+			return nil, err
+		}
+		opts = append(opts, otlpmetrichttp.WithEndpoint(u.Host))
+
+		if u.Scheme == "http" {
+			opts = append(opts, otlpmetrichttp.WithInsecure())
+		}
+		if len(u.Path) > 0 {
+			opts = append(opts, otlpmetrichttp.WithURLPath(u.Path))
+		}
+	}
+	if otlpConfig.Compression != nil {
+		switch *otlpConfig.Compression {
+		case "gzip":
+			opts = append(opts, otlpmetrichttp.WithCompression(otlpmetrichttp.GzipCompression))
+		case "none":
+			opts = append(opts, otlpmetrichttp.WithCompression(otlpmetrichttp.NoCompression))
+		default:
+			return nil, fmt.Errorf("unsupported compression %q", *otlpConfig.Compression)
+		}
+	}
+	if otlpConfig.Timeout != nil {
+		opts = append(opts, otlpmetrichttp.WithTimeout(time.Millisecond*time.Duration(*otlpConfig.Timeout)))
+	}
+	if len(otlpConfig.Headers) > 0 {
+		opts = append(opts, otlpmetrichttp.WithHeaders(otlpConfig.Headers))
+	}
+
+	return otlpmetrichttp.New(ctx, opts...)
 }
