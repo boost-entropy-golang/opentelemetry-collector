@@ -14,7 +14,7 @@ require (
 	go.opentelemetry.io/collector/featuregate v1.0.0-rcv0014
 	go.opentelemetry.io/collector/processor v0.85.0
 	go.opentelemetry.io/collector/receiver v0.85.0
-	go.opentelemetry.io/collector/service v0.0.0-00010101000000-000000000000
+	go.opentelemetry.io/collector/service v0.0.0-20230915215502-07938f20fcc7
 	go.uber.org/multierr v1.11.0
 	go.uber.org/zap v1.26.0
 	golang.org/x/sys v0.12.0
@@ -70,7 +70,7 @@ require (
 	go.opentelemetry.io/collector/semconv v0.85.0 // indirect
 	go.opentelemetry.io/contrib/propagators/b3 v1.19.0 // indirect
 	go.opentelemetry.io/otel v1.18.0 // indirect
-	go.opentelemetry.io/otel/bridge/opencensus v0.40.0 // indirect
+	go.opentelemetry.io/otel/bridge/opencensus v0.41.0 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlpmetric v0.41.0 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc v0.41.0 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp v0.41.0 // indirect
