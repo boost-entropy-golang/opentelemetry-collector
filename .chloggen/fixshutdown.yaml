@@ -4,10 +4,10 @@
 change_type: 'enhancement'
 
 # The name of the component, or a single word describing the area of concern, (e.g. otlpreceiver)
-component: "exporterhelper"
+component: exporterhelper
 
 # A brief description of the change.  Surround your text with quotes ("") if it needs to start with a backtick (`).
-note: "Simplify usage of storage client, avoid unnecessary allocations"
+note: "Fix shutdown logic in persistent queue to not require consumers to be closed first"
 
 # One or more tracking issues or pull requests related to the change
-issues: [8830]
+issues: [8899]
