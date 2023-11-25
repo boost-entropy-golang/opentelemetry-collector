@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/gogo/protobuf v1.3.2
-	github.com/klauspost/compress v1.17.2
+	github.com/klauspost/compress v1.17.3
 	github.com/stretchr/testify v1.8.4
 	go.opentelemetry.io/collector v0.89.0
 	go.opentelemetry.io/collector/component v0.89.0
@@ -19,7 +19,7 @@ require (
 	go.opentelemetry.io/collector/receiver v0.89.0
 	go.opentelemetry.io/collector/semconv v0.89.0
 	go.uber.org/zap v1.26.0
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20231106174013-bbf56f31fb17
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20231120223509-83a465c0220f
 	google.golang.org/grpc v1.59.0
 	google.golang.org/protobuf v1.31.0
 )
@@ -66,7 +66,7 @@ require (
 	go.opentelemetry.io/collector/extension v0.89.0 // indirect
 	go.opentelemetry.io/collector/extension/auth v0.89.0 // indirect
 	go.opentelemetry.io/collector/featuregate v1.0.0-rcv0018 // indirect
-	go.opentelemetry.io/contrib/config v0.1.0 // indirect
+	go.opentelemetry.io/contrib/config v0.1.1 // indirect
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.46.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.46.1 // indirect
 	go.opentelemetry.io/otel v1.21.0 // indirect
