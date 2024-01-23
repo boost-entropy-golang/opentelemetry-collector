@@ -629,8 +629,8 @@ go.opentelemetry.io/build-tools/checkfile v0.12.0 h1:1g3iBxjPuack0pEvqkTiEcyh0uJ
 go.opentelemetry.io/build-tools/checkfile v0.12.0/go.mod h1:0Ql58QUUwr2jaQJSjFKkAFkT/Eent7eEOKiQ1+R+zvA=
 go.opentelemetry.io/build-tools/chloggen v0.12.0 h1:BFj/1bNIGxOs1GykGjhV4gycz1nqVWI/xVDUaVfNibw=
 go.opentelemetry.io/build-tools/chloggen v0.12.0/go.mod h1:zuYbAo3TkrHo3C7lCrM5dHWSS50BDr0UfRYtyBFv2dQ=
-go.opentelemetry.io/build-tools/crosslink v0.12.1-0.20240117214312-6a6b657017ef h1:988MtqlOowLmrJ5wtpQjcf2iYqU+EYNThybgRIb9O2M=
-go.opentelemetry.io/build-tools/crosslink v0.12.1-0.20240117214312-6a6b657017ef/go.mod h1:pHYd1joKyVZPA5sf6gOrbzfbY8VFDiXFp0fVi68whAU=
+go.opentelemetry.io/build-tools/crosslink v0.12.1-0.20240121161735-d70c842b1bf5 h1:3XxFDNe5QBv6qPqUJK/ihejuTpJfCPSFyoJuP8DHKew=
+go.opentelemetry.io/build-tools/crosslink v0.12.1-0.20240121161735-d70c842b1bf5/go.mod h1:pHYd1joKyVZPA5sf6gOrbzfbY8VFDiXFp0fVi68whAU=
 go.opentelemetry.io/build-tools/multimod v0.12.0 h1:DKi+A+4EaKrOZDTNDDZz3ijiAduEQDo8j1rzWUaGUHo=
 go.opentelemetry.io/build-tools/multimod v0.12.0/go.mod h1:w03q3WgZs7reoBNnmfdClkKdTIA/IHM8ric5E2jEDD0=
 go.opentelemetry.io/build-tools/semconvgen v0.12.0 h1:AsjYFwo8sSLAjwjklj+yVwm2xogJUxRf5pxflATg9N0=
@@ -667,8 +667,8 @@ golang.org/x/exp v0.0.0-20191227195350-da58074b4299/go.mod h1:2RIsYlXP63K8oxa1u0
 golang.org/x/exp v0.0.0-20200119233911-0405dc783f0a/go.mod h1:2RIsYlXP63K8oxa1u096TMicItID8zy7Y6sNkU49FU4=
 golang.org/x/exp v0.0.0-20200207192155-f17229e696bd/go.mod h1:J/WKrq2StrnmMY6+EHIKF9dgMWnmCNThgcyBT1FY9mM=
 golang.org/x/exp v0.0.0-20200224162631-6cc2880d07d6/go.mod h1:3jZMyOhIsHpP37uCMkUooju7aAi5cS1Q23tOzKc+0MU=
-golang.org/x/exp v0.0.0-20240112132812-db7319d0e0e3 h1:hNQpMuAJe5CtcUqCXaWga3FHu+kQvCqcsoVaQgSV60o=
-golang.org/x/exp v0.0.0-20240112132812-db7319d0e0e3/go.mod h1:idGWGoKP1toJGkd5/ig9ZLuPcZBC3ewk7SzmH0uou08=
+golang.org/x/exp v0.0.0-20240119083558-1b970713d09a h1:Q8/wZp0KX97QFTc2ywcOE0YRjZPVIx+MXInMzdvQqcA=
+golang.org/x/exp v0.0.0-20240119083558-1b970713d09a/go.mod h1:idGWGoKP1toJGkd5/ig9ZLuPcZBC3ewk7SzmH0uou08=
 golang.org/x/exp/typeparams v0.0.0-20220428152302-39d4317da171/go.mod h1:AbB0pIl9nAr9wVwH+Z2ZpaocVmF5I4GyWCDIsVjR0bk=
 golang.org/x/exp/typeparams v0.0.0-20230203172020-98cc5a0785f9/go.mod h1:AbB0pIl9nAr9wVwH+Z2ZpaocVmF5I4GyWCDIsVjR0bk=
 golang.org/x/exp/typeparams v0.0.0-20230307190834-24139beb5833 h1:jWGQJV4niP+CCmFW9ekjA9Zx8vYORzOUH2/Nl5WPuLQ=
