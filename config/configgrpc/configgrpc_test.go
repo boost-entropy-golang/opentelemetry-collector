@@ -50,12 +50,19 @@ func init() {
 	balancer.Register(testBalancerBuilder{})
 }
 
+var (
+	componentID   = component.MustNewID("component")
+	testAuthID    = component.MustNewID("testauth")
+	mockID        = component.MustNewID("mock")
+	doesntExistID = component.MustNewID("doesntexist")
+)
+
 func TestDefaultGrpcClientSettings(t *testing.T) {
-	tt, err := componenttest.SetupTelemetry(component.NewID("component"))
+	tt, err := componenttest.SetupTelemetry(componentID)
 	require.NoError(t, err)
 	t.Cleanup(func() { require.NoError(t, tt.Shutdown(context.Background())) })
 
-	gcs := &GRPCClientSettings{
+	gcs := &ClientConfig{
 		TLSSetting: configtls.TLSClientSetting{
 			Insecure: true,
 		},
@@ -66,18 +73,18 @@ func TestDefaultGrpcClientSettings(t *testing.T) {
 }
 
 func TestAllGrpcClientSettings(t *testing.T) {
-	tt, err := componenttest.SetupTelemetry(component.NewID("component"))
+	tt, err := componenttest.SetupTelemetry(componentID)
 	require.NoError(t, err)
 	t.Cleanup(func() { require.NoError(t, tt.Shutdown(context.Background())) })
 
 	tests := []struct {
-		settings GRPCClientSettings
+		settings ClientConfig
 		name     string
 		host     component.Host
 	}{
 		{
 			name: "test all with gzip compression",
-			settings: GRPCClientSettings{
+			settings: ClientConfig{
 				Headers: map[string]configopaque.String{
 					"test": "test",
 				},
@@ -96,17 +103,17 @@ func TestAllGrpcClientSettings(t *testing.T) {
 				WaitForReady:    true,
 				BalancerName:    "round_robin",
 				Authority:       "pseudo-authority",
-				Auth:            &configauth.Authentication{AuthenticatorID: component.NewID("testauth")},
+				Auth:            &configauth.Authentication{AuthenticatorID: testAuthID},
 			},
 			host: &mockHost{
 				ext: map[component.ID]component.Component{
-					component.NewID("testauth"): &authtest.MockClient{},
+					testAuthID: &authtest.MockClient{},
 				},
 			},
 		},
 		{
 			name: "test all with snappy compression",
-			settings: GRPCClientSettings{
+			settings: ClientConfig{
 				Headers: map[string]configopaque.String{
 					"test": "test",
 				},
@@ -125,17 +132,17 @@ func TestAllGrpcClientSettings(t *testing.T) {
 				WaitForReady:    true,
 				BalancerName:    "round_robin",
 				Authority:       "pseudo-authority",
-				Auth:            &configauth.Authentication{AuthenticatorID: component.NewID("testauth")},
+				Auth:            &configauth.Authentication{AuthenticatorID: testAuthID},
 			},
 			host: &mockHost{
 				ext: map[component.ID]component.Component{
-					component.NewID("testauth"): &authtest.MockClient{},
+					testAuthID: &authtest.MockClient{},
 				},
 			},
 		},
 		{
 			name: "test all with zstd compression",
-			settings: GRPCClientSettings{
+			settings: ClientConfig{
 				Headers: map[string]configopaque.String{
 					"test": "test",
 				},
@@ -154,11 +161,11 @@ func TestAllGrpcClientSettings(t *testing.T) {
 				WaitForReady:    true,
 				BalancerName:    "configgrpc_balancer_test",
 				Authority:       "pseudo-authority",
-				Auth:            &configauth.Authentication{AuthenticatorID: component.NewID("testauth")},
+				Auth:            &configauth.Authentication{AuthenticatorID: testAuthID},
 			},
 			host: &mockHost{
 				ext: map[component.ID]component.Component{
-					component.NewID("testauth"): &authtest.MockClient{},
+					testAuthID: &authtest.MockClient{},
 				},
 			},
 		},
@@ -223,11 +230,11 @@ func TestGrpcServerAuthSettings(t *testing.T) {
 		},
 	}
 	gss.Auth = &configauth.Authentication{
-		AuthenticatorID: component.NewID("mock"),
+		AuthenticatorID: mockID,
 	}
 	host := &mockHost{
 		ext: map[component.ID]component.Component{
-			component.NewID("mock"): auth.NewServer(),
+			mockID: auth.NewServer(),
 		},
 	}
 	srv, err := gss.ToServer(host, componenttest.NewNopTelemetrySettings())
@@ -236,18 +243,18 @@ func TestGrpcServerAuthSettings(t *testing.T) {
 }
 
 func TestGRPCClientSettingsError(t *testing.T) {
-	tt, err := componenttest.SetupTelemetry(component.NewID("component"))
+	tt, err := componenttest.SetupTelemetry(componentID)
 	require.NoError(t, err)
 	t.Cleanup(func() { require.NoError(t, tt.Shutdown(context.Background())) })
 
 	tests := []struct {
-		settings GRPCClientSettings
+		settings ClientConfig
 		err      string
 		host     component.Host
 	}{
 		{
 			err: "^failed to load TLS config: failed to load CA CertPool File: failed to load cert /doesnt/exist:",
-			settings: GRPCClientSettings{
+			settings: ClientConfig{
 				Headers:     nil,
 				Endpoint:    "",
 				Compression: "",
@@ -263,7 +270,7 @@ func TestGRPCClientSettingsError(t *testing.T) {
 		},
 		{
 			err: "^failed to load TLS config: failed to load TLS cert and key: for auth via TLS, provide both certificate and key, or neither",
-			settings: GRPCClientSettings{
+			settings: ClientConfig{
 				Headers:     nil,
 				Endpoint:    "",
 				Compression: "",
@@ -279,7 +286,7 @@ func TestGRPCClientSettingsError(t *testing.T) {
 		},
 		{
 			err: "invalid balancer_name: test",
-			settings: GRPCClientSettings{
+			settings: ClientConfig{
 				Headers: map[string]configopaque.String{
 					"test": "test",
 				},
@@ -301,23 +308,23 @@ func TestGRPCClientSettingsError(t *testing.T) {
 		},
 		{
 			err: "failed to resolve authenticator \"doesntexist\": authenticator not found",
-			settings: GRPCClientSettings{
+			settings: ClientConfig{
 				Endpoint: "localhost:1234",
-				Auth:     &configauth.Authentication{AuthenticatorID: component.NewID("doesntexist")},
+				Auth:     &configauth.Authentication{AuthenticatorID: doesntExistID},
 			},
 			host: &mockHost{ext: map[component.ID]component.Component{}},
 		},
 		{
 			err: "no extensions configuration available",
-			settings: GRPCClientSettings{
+			settings: ClientConfig{
 				Endpoint: "localhost:1234",
-				Auth:     &configauth.Authentication{AuthenticatorID: component.NewID("doesntexist")},
+				Auth:     &configauth.Authentication{AuthenticatorID: doesntExistID},
 			},
 			host: &mockHost{},
 		},
 		{
 			err: "unsupported compression type \"zlib\"",
-			settings: GRPCClientSettings{
+			settings: ClientConfig{
 				Endpoint: "localhost:1234",
 				TLSSetting: configtls.TLSClientSetting{
 					Insecure: true,
@@ -328,7 +335,7 @@ func TestGRPCClientSettingsError(t *testing.T) {
 		},
 		{
 			err: "unsupported compression type \"deflate\"",
-			settings: GRPCClientSettings{
+			settings: ClientConfig{
 				Endpoint: "localhost:1234",
 				TLSSetting: configtls.TLSClientSetting{
 					Insecure: true,
@@ -339,7 +346,7 @@ func TestGRPCClientSettingsError(t *testing.T) {
 		},
 		{
 			err: "unsupported compression type \"bad\"",
-			settings: GRPCClientSettings{
+			settings: ClientConfig{
 				Endpoint: "localhost:1234",
 				TLSSetting: configtls.TLSClientSetting{
 					Insecure: true,
@@ -359,11 +366,11 @@ func TestGRPCClientSettingsError(t *testing.T) {
 }
 
 func TestUseSecure(t *testing.T) {
-	tt, err := componenttest.SetupTelemetry(component.NewID("component"))
+	tt, err := componenttest.SetupTelemetry(componentID)
 	require.NoError(t, err)
 	t.Cleanup(func() { require.NoError(t, tt.Shutdown(context.Background())) })
 
-	gcs := &GRPCClientSettings{
+	gcs := &ClientConfig{
 		Headers:     nil,
 		Endpoint:    "",
 		Compression: "",
@@ -498,7 +505,7 @@ func TestGRPCServerSettings_ToListener_Error(t *testing.T) {
 }
 
 func TestHttpReception(t *testing.T) {
-	tt, err := componenttest.SetupTelemetry(component.NewID("component"))
+	tt, err := componenttest.SetupTelemetry(componentID)
 	require.NoError(t, err)
 	t.Cleanup(func() { require.NoError(t, tt.Shutdown(context.Background())) })
 
@@ -625,7 +632,7 @@ func TestHttpReception(t *testing.T) {
 				_ = s.Serve(ln)
 			}()
 
-			gcs := &GRPCClientSettings{
+			gcs := &ClientConfig{
 				Endpoint:   ln.Addr().String(),
 				TLSSetting: *test.tlsClientCreds,
 			}
@@ -650,7 +657,7 @@ func TestReceiveOnUnixDomainSocket(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skip("skipping test on windows")
 	}
-	tt, err := componenttest.SetupTelemetry(component.NewID("component"))
+	tt, err := componenttest.SetupTelemetry(componentID)
 	require.NoError(t, err)
 	t.Cleanup(func() { require.NoError(t, tt.Shutdown(context.Background())) })
 
@@ -671,7 +678,7 @@ func TestReceiveOnUnixDomainSocket(t *testing.T) {
 		_ = srv.Serve(ln)
 	}()
 
-	gcs := &GRPCClientSettings{
+	gcs := &ClientConfig{
 		Endpoint: "unix://" + ln.Addr().String(),
 		TLSSetting: configtls.TLSClientSetting{
 			Insecure: true,
@@ -872,14 +879,14 @@ func TestClientInfoInterceptors(t *testing.T) {
 
 			// prepare the client and execute a RPC
 			{
-				gcs := &GRPCClientSettings{
+				gcs := &ClientConfig{
 					Endpoint: l.Addr().String(),
 					TLSSetting: configtls.TLSClientSetting{
 						Insecure: true,
 					},
 				}
 
-				tt, err := componenttest.SetupTelemetry(component.NewID("component"))
+				tt, err := componenttest.SetupTelemetry(componentID)
 				require.NoError(t, err)
 				defer func() {
 					require.NoError(t, tt.Shutdown(context.Background()))
