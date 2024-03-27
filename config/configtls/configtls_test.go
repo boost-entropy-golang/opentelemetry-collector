@@ -4,6 +4,7 @@
 package configtls
 
 import (
+	"context"
 	"crypto/tls"
 	"crypto/x509"
 	"errors"
@@ -36,7 +37,7 @@ func TestOptionsToConfig(t *testing.T) {
 		},
 		{
 			name:    "should load system CA and custom CA",
-			options: TLSSetting{IncludeSystemCACertsPool: true, CAFile: filepath.Join("testdata", "ca-1.crt")},
+			options: Config{IncludeSystemCACertsPool: true, CAFile: filepath.Join("testdata", "ca-1.crt")},
 		},
 		{
 			name:        "should fail with invalid CA file path",
@@ -249,12 +250,12 @@ func readFilePanics(filePath string) configopaque.String {
 
 func TestLoadTLSClientConfigError(t *testing.T) {
 	tlsSetting := ClientConfig{
-		TLSSetting: Config{
+		Config: Config{
 			CertFile: "doesnt/exist",
 			KeyFile:  "doesnt/exist",
 		},
 	}
-	_, err := tlsSetting.LoadTLSConfig()
+	_, err := tlsSetting.LoadTLSConfigContext(context.Background())
 	assert.Error(t, err)
 }
 
@@ -262,19 +263,19 @@ func TestLoadTLSClientConfig(t *testing.T) {
 	tlsSetting := ClientConfig{
 		Insecure: true,
 	}
-	tlsCfg, err := tlsSetting.LoadTLSConfig()
+	tlsCfg, err := tlsSetting.LoadTLSConfigContext(context.Background())
 	assert.NoError(t, err)
 	assert.Nil(t, tlsCfg)
 
 	tlsSetting = ClientConfig{}
-	tlsCfg, err = tlsSetting.LoadTLSConfig()
+	tlsCfg, err = tlsSetting.LoadTLSConfigContext(context.Background())
 	assert.NoError(t, err)
 	assert.NotNil(t, tlsCfg)
 
 	tlsSetting = ClientConfig{
 		InsecureSkipVerify: true,
 	}
-	tlsCfg, err = tlsSetting.LoadTLSConfig()
+	tlsCfg, err = tlsSetting.LoadTLSConfigContext(context.Background())
 	assert.NoError(t, err)
 	assert.NotNil(t, tlsCfg)
 	assert.True(t, tlsCfg.InsecureSkipVerify)
@@ -282,24 +283,24 @@ func TestLoadTLSClientConfig(t *testing.T) {
 
 func TestLoadTLSServerConfigError(t *testing.T) {
 	tlsSetting := ServerConfig{
-		TLSSetting: Config{
+		Config: Config{
 			CertFile: "doesnt/exist",
 			KeyFile:  "doesnt/exist",
 		},
 	}
-	_, err := tlsSetting.LoadTLSConfig()
+	_, err := tlsSetting.LoadTLSConfigContext(context.Background())
 	assert.Error(t, err)
 
 	tlsSetting = ServerConfig{
 		ClientCAFile: "doesnt/exist",
 	}
-	_, err = tlsSetting.LoadTLSConfig()
+	_, err = tlsSetting.LoadTLSConfigContext(context.Background())
 	assert.Error(t, err)
 }
 
 func TestLoadTLSServerConfig(t *testing.T) {
 	tlsSetting := ServerConfig{}
-	tlsCfg, err := tlsSetting.LoadTLSConfig()
+	tlsCfg, err := tlsSetting.LoadTLSConfigContext(context.Background())
 	assert.NoError(t, err)
 	assert.NotNil(t, tlsCfg)
 }
@@ -315,7 +316,7 @@ func TestLoadTLSServerConfigReload(t *testing.T) {
 		ReloadClientCAFile: true,
 	}
 
-	tlsCfg, err := tlsSetting.LoadTLSConfig()
+	tlsCfg, err := tlsSetting.LoadTLSConfigContext(context.Background())
 	assert.NoError(t, err)
 	assert.NotNil(t, tlsCfg)
 
@@ -346,7 +347,7 @@ func TestLoadTLSServerConfigFailingReload(t *testing.T) {
 		ReloadClientCAFile: true,
 	}
 
-	tlsCfg, err := tlsSetting.LoadTLSConfig()
+	tlsCfg, err := tlsSetting.LoadTLSConfigContext(context.Background())
 	assert.NoError(t, err)
 	assert.NotNil(t, tlsCfg)
 
@@ -377,7 +378,7 @@ func TestLoadTLSServerConfigFailingInitialLoad(t *testing.T) {
 		ReloadClientCAFile: true,
 	}
 
-	tlsCfg, err := tlsSetting.LoadTLSConfig()
+	tlsCfg, err := tlsSetting.LoadTLSConfigContext(context.Background())
 	assert.Error(t, err)
 	assert.Nil(t, tlsCfg)
 }
@@ -391,7 +392,7 @@ func TestLoadTLSServerConfigWrongPath(t *testing.T) {
 		ReloadClientCAFile: true,
 	}
 
-	tlsCfg, err := tlsSetting.LoadTLSConfig()
+	tlsCfg, err := tlsSetting.LoadTLSConfigContext(context.Background())
 	assert.Error(t, err)
 	assert.Nil(t, tlsCfg)
 }
@@ -407,7 +408,7 @@ func TestLoadTLSServerConfigFailing(t *testing.T) {
 		ReloadClientCAFile: true,
 	}
 
-	tlsCfg, err := tlsSetting.LoadTLSConfig()
+	tlsCfg, err := tlsSetting.LoadTLSConfigContext(context.Background())
 	assert.NoError(t, err)
 	assert.NotNil(t, tlsCfg)
 
@@ -633,10 +634,10 @@ func TestMinMaxTLSVersions(t *testing.T) {
 	}
 }
 
-func TestTLSSettingValidate(t *testing.T) {
+func TestConfigValidate(t *testing.T) {
 	tests := []struct {
 		name      string
-		tlsConfig TLSSetting
+		tlsConfig Config
 		errorTxt  string
 	}{
 		{name: `TLS Config ["", ""] to be valid`, tlsConfig: Config{MinVersion: "", MaxVersion: ""}},
@@ -717,13 +718,13 @@ func TestSystemCertPool(t *testing.T) {
 	anError := errors.New("my error")
 	tests := []struct {
 		name         string
-		tlsSetting   TLSSetting
+		tlsConfig    Config
 		wantErr      error
 		systemCertFn func() (*x509.CertPool, error)
 	}{
 		{
 			name: "not using system cert pool",
-			tlsSetting: TLSSetting{
+			tlsConfig: Config{
 				IncludeSystemCACertsPool: false,
 				CAFile:                   filepath.Join("testdata", "ca-1.crt"),
 			},
@@ -732,7 +733,7 @@ func TestSystemCertPool(t *testing.T) {
 		},
 		{
 			name: "using system cert pool",
-			tlsSetting: TLSSetting{
+			tlsConfig: Config{
 				IncludeSystemCACertsPool: true,
 				CAFile:                   filepath.Join("testdata", "ca-1.crt"),
 			},
@@ -741,7 +742,7 @@ func TestSystemCertPool(t *testing.T) {
 		},
 		{
 			name: "error loading system cert pool",
-			tlsSetting: TLSSetting{
+			tlsConfig: Config{
 				IncludeSystemCACertsPool: true,
 				CAFile:                   filepath.Join("testdata", "ca-1.crt"),
 			},
@@ -752,7 +753,7 @@ func TestSystemCertPool(t *testing.T) {
 		},
 		{
 			name: "nil system cert pool",
-			tlsSetting: TLSSetting{
+			tlsConfig: Config{
 				IncludeSystemCACertsPool: true,
 				CAFile:                   filepath.Join("testdata", "ca-1.crt"),
 			},
@@ -771,7 +772,7 @@ func TestSystemCertPool(t *testing.T) {
 			}()
 
 			serverConfig := ServerConfig{
-				TLSSetting: test.tlsSetting,
+				Config: test.tlsConfig,
 			}
 			c, err := serverConfig.LoadTLSConfig()
 			if test.wantErr != nil {
@@ -781,7 +782,7 @@ func TestSystemCertPool(t *testing.T) {
 			}
 
 			clientConfig := ClientConfig{
-				TLSSetting: test.tlsSetting,
+				Config: test.tlsConfig,
 			}
 			c, err = clientConfig.LoadTLSConfig()
 			if test.wantErr != nil {
@@ -797,13 +798,13 @@ func TestSystemCertPool_loadCert(t *testing.T) {
 	anError := errors.New("my error")
 	tests := []struct {
 		name         string
-		tlsSetting   TLSSetting
+		tlsConfig    Config
 		wantErr      error
 		systemCertFn func() (*x509.CertPool, error)
 	}{
 		{
 			name: "not using system cert pool",
-			tlsSetting: TLSSetting{
+			tlsConfig: Config{
 				IncludeSystemCACertsPool: false,
 			},
 			wantErr:      nil,
@@ -811,7 +812,7 @@ func TestSystemCertPool_loadCert(t *testing.T) {
 		},
 		{
 			name: "using system cert pool",
-			tlsSetting: TLSSetting{
+			tlsConfig: Config{
 				IncludeSystemCACertsPool: true,
 			},
 			wantErr:      nil,
@@ -819,7 +820,7 @@ func TestSystemCertPool_loadCert(t *testing.T) {
 		},
 		{
 			name: "error loading system cert pool",
-			tlsSetting: TLSSetting{
+			tlsConfig: Config{
 				IncludeSystemCACertsPool: true,
 			},
 			wantErr: anError,
@@ -829,7 +830,7 @@ func TestSystemCertPool_loadCert(t *testing.T) {
 		},
 		{
 			name: "nil system cert pool",
-			tlsSetting: TLSSetting{
+			tlsConfig: Config{
 				IncludeSystemCACertsPool: true,
 			},
 			wantErr: nil,
@@ -845,7 +846,7 @@ func TestSystemCertPool_loadCert(t *testing.T) {
 			defer func() {
 				systemCertPool = oldSystemCertPool
 			}()
-			certPool, err := test.tlsSetting.loadCert(filepath.Join("testdata", "ca-1.crt"))
+			certPool, err := test.tlsConfig.loadCert(filepath.Join("testdata", "ca-1.crt"))
 			if test.wantErr != nil {
 				assert.Equal(t, test.wantErr, err)
 			} else {
