@@ -130,6 +130,8 @@ tests:
 # Optional: map of metric names with the key being the metric name and value
 # being described below.
 telemetry:
+  # Optional: level allows components to specify the minimum telemetry level for metrics to be produced. defaults to basic if not set.
+  level: string
   metrics:
     <metric.name>:
       # Required: whether the metric is collected by default.
@@ -157,5 +159,7 @@ telemetry:
         value_type: <int|double>
         # Required for sum metric: whether the metric is monotonic (no negative delta values).
         monotonic: bool
+        # Bucket boundaries are only available to set for histogram metrics.
+        bucket_boundaries: [double]
       # Optional: array of attributes that were defined in the attributes section that are emitted by this metric.
       attributes: [string]
