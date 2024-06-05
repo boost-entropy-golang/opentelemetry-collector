@@ -54,7 +54,7 @@ func newBatchSender(cfg exporterbatcher.Config, set exporter.CreateSettings,
 		logger:             set.Logger,
 		mergeFunc:          mf,
 		mergeSplitFunc:     msf,
-		shutdownCh:         make(chan struct{}),
+		shutdownCh:         nil,
 		shutdownCompleteCh: make(chan struct{}),
 		stopped:            &atomic.Bool{},
 		resetTimerCh:       make(chan struct{}),
@@ -63,6 +63,7 @@ func newBatchSender(cfg exporterbatcher.Config, set exporter.CreateSettings,
 }
 
 func (bs *batchSender) Start(_ context.Context, _ component.Host) error {
+	bs.shutdownCh = make(chan struct{})
 	timer := time.NewTimer(bs.cfg.FlushTimeout)
 	go func() {
 		for {
@@ -119,7 +120,7 @@ func newEmptyBatch() *batch {
 // Caller must hold the lock.
 func (bs *batchSender) exportActiveBatch() {
 	go func(b *batch) {
-		b.err = b.request.Export(b.ctx)
+		b.err = bs.nextSender.send(b.ctx, b.request)
 		close(b.done)
 	}(bs.activeBatch)
 	bs.activeBatch = newEmptyBatch()
@@ -182,7 +183,7 @@ func (bs *batchSender) sendMergeSplitBatch(ctx context.Context, req Request) err
 	// Intentionally do not put the last request in the active batch to not block it.
 	// TODO: Consider including the partial request in the error to avoid double publishing.
 	for _, r := range reqs {
-		if err := r.Export(ctx); err != nil {
+		if err := bs.nextSender.send(ctx, r); err != nil {
 			return err
 		}
 	}
@@ -227,7 +228,9 @@ func (bs *batchSender) updateActiveBatch(ctx context.Context, req Request) {
 
 func (bs *batchSender) Shutdown(context.Context) error {
 	bs.stopped.Store(true)
-	close(bs.shutdownCh)
-	<-bs.shutdownCompleteCh
+	if bs.shutdownCh != nil {
+		close(bs.shutdownCh)
+		<-bs.shutdownCompleteCh
+	}
 	return nil
 }

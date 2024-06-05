@@ -436,6 +436,15 @@ func TestBatchSender_WithBatcherOption(t *testing.T) {
 	}
 }
 
+func TestBatchSender_UnstartedShutdown(t *testing.T) {
+	be, err := newBaseExporter(defaultSettings, defaultDataType, newNoopObsrepSender,
+		WithBatcher(exporterbatcher.NewDefaultConfig(), WithRequestBatchFuncs(fakeBatchMergeFunc, fakeBatchMergeSplitFunc)))
+	require.NoError(t, err)
+
+	err = be.Shutdown(context.Background())
+	require.NoError(t, err)
+}
+
 // TestBatchSender_ShutdownDeadlock tests that the exporter does not deadlock when shutting down while a batch is being
 // merged.
 func TestBatchSender_ShutdownDeadlock(t *testing.T) {
@@ -481,6 +490,49 @@ func TestBatchSender_ShutdownDeadlock(t *testing.T) {
 
 	assert.EqualValues(t, 1, sink.requestsCount.Load())
 	assert.EqualValues(t, 8, sink.itemsCount.Load())
+}
+
+func TestBatchSenderWithTimeout(t *testing.T) {
+	bCfg := exporterbatcher.NewDefaultConfig()
+	bCfg.MinSizeItems = 10
+	tCfg := NewDefaultTimeoutSettings()
+	tCfg.Timeout = 50 * time.Millisecond
+	be, err := newBaseExporter(defaultSettings, defaultDataType, newNoopObsrepSender,
+		WithBatcher(bCfg, WithRequestBatchFuncs(fakeBatchMergeFunc, fakeBatchMergeSplitFunc)),
+		WithTimeout(tCfg))
+	require.NoError(t, err)
+	require.NoError(t, be.Start(context.Background(), componenttest.NewNopHost()))
+
+	sink := newFakeRequestSink()
+
+	// Send 3 concurrent requests that should be merged in one batch
+	wg := sync.WaitGroup{}
+	for i := 0; i < 3; i++ {
+		wg.Add(1)
+		go func() {
+			require.NoError(t, be.send(context.Background(), &fakeRequest{items: 4, sink: sink}))
+			wg.Done()
+		}()
+	}
+	wg.Wait()
+	assert.EqualValues(t, 1, sink.requestsCount.Load())
+	assert.EqualValues(t, 12, sink.itemsCount.Load())
+
+	// 3 requests with a 90ms cumulative delay must be cancelled by the timeout sender
+	for i := 0; i < 3; i++ {
+		wg.Add(1)
+		go func() {
+			assert.Error(t, be.send(context.Background(), &fakeRequest{items: 4, sink: sink, delay: 30 * time.Millisecond}))
+			wg.Done()
+		}()
+	}
+	wg.Wait()
+
+	assert.NoError(t, be.Shutdown(context.Background()))
+
+	// The sink should not change
+	assert.EqualValues(t, 1, sink.requestsCount.Load())
+	assert.EqualValues(t, 12, sink.itemsCount.Load())
 }
 
 func queueBatchExporter(t *testing.T, batchOption Option) *baseExporter {
