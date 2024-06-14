@@ -60,7 +60,7 @@ require (
 	github.com/prometheus/client_model v0.6.1 // indirect
 	github.com/prometheus/common v0.54.0 // indirect
 	github.com/prometheus/procfs v0.15.0 // indirect
-	github.com/shirou/gopsutil/v3 v3.24.5 // indirect
+	github.com/shirou/gopsutil/v4 v4.24.5 // indirect
 	github.com/shoenig/go-m1cpu v0.1.6 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/tklauser/go-sysconf v0.3.12 // indirect
@@ -89,12 +89,12 @@ require (
 	go.opentelemetry.io/otel/sdk/metric v1.27.0 // indirect
 	go.opentelemetry.io/otel/trace v1.27.0 // indirect
 	go.opentelemetry.io/proto/otlp v1.2.0 // indirect
-	golang.org/x/net v0.25.0 // indirect
-	golang.org/x/text v0.15.0 // indirect
+	golang.org/x/net v0.26.0 // indirect
+	golang.org/x/text v0.16.0 // indirect
 	gonum.org/v1/gonum v0.15.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20240520151616-dc85e6b867a5 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240520151616-dc85e6b867a5 // indirect
-	google.golang.org/protobuf v1.34.1 // indirect
+	google.golang.org/protobuf v1.34.2 // indirect
 )
 
 replace go.opentelemetry.io/collector => ../
@@ -141,6 +141,18 @@ replace go.opentelemetry.io/collector/receiver => ../receiver
 
 replace go.opentelemetry.io/collector/featuregate => ../featuregate
 
-replace go.opentelemetry.io/collector/config/confignet => ../config/confignet
-
 replace go.opentelemetry.io/collector/config/configretry => ../config/configretry
+
+replace go.opentelemetry.io/collector/config/confighttp => ../config/confighttp
+
+replace go.opentelemetry.io/collector/config/internal => ../config/internal
+
+replace go.opentelemetry.io/collector/config/configauth => ../config/configauth
+
+replace go.opentelemetry.io/collector/extension/auth => ../extension/auth
+
+replace go.opentelemetry.io/collector/config/configcompression => ../config/configcompression
+
+replace go.opentelemetry.io/collector/config/configtls => ../config/configtls
+
+replace go.opentelemetry.io/collector/config/configopaque => ../config/configopaque
