@@ -14,12 +14,12 @@ require (
 	go.opentelemetry.io/collector/confmap v0.105.0
 	go.opentelemetry.io/collector/consumer v0.105.0
 	go.opentelemetry.io/collector/exporter v0.105.0
-	go.opentelemetry.io/collector/exporter/otlpexporter v0.104.0
-	go.opentelemetry.io/collector/exporter/otlphttpexporter v0.104.0
+	go.opentelemetry.io/collector/exporter/otlpexporter v0.105.0
+	go.opentelemetry.io/collector/exporter/otlphttpexporter v0.105.0
 	go.opentelemetry.io/collector/pdata v1.12.0
 	go.opentelemetry.io/collector/pdata/testdata v0.105.0
 	go.opentelemetry.io/collector/receiver v0.105.0
-	go.opentelemetry.io/collector/receiver/otlpreceiver v0.104.0
+	go.opentelemetry.io/collector/receiver/otlpreceiver v0.105.0
 	go.uber.org/goleak v1.3.0
 )
 
@@ -32,7 +32,7 @@ require (
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/go-logr/logr v1.4.2 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
-	github.com/go-viper/mapstructure/v2 v2.0.0-alpha.1 // indirect
+	github.com/go-viper/mapstructure/v2 v2.0.0 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/uuid v1.6.0 // indirect
