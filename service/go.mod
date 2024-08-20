@@ -4,13 +4,14 @@ go 1.22.0
 
 require (
 	github.com/google/uuid v1.6.0
-	github.com/prometheus/client_golang v1.19.1
+	github.com/prometheus/client_golang v1.20.1
 	github.com/prometheus/client_model v0.6.1
 	github.com/prometheus/common v0.55.0
 	github.com/shirou/gopsutil/v4 v4.24.7
 	github.com/stretchr/testify v1.9.0
 	go.opentelemetry.io/collector v0.107.0
 	go.opentelemetry.io/collector/component v0.107.0
+	go.opentelemetry.io/collector/component/componentstatus v0.107.0
 	go.opentelemetry.io/collector/config/confighttp v0.107.0
 	go.opentelemetry.io/collector/config/configtelemetry v0.107.0
 	go.opentelemetry.io/collector/confmap v0.107.0
@@ -41,7 +42,7 @@ require (
 	go.uber.org/goleak v1.3.0
 	go.uber.org/multierr v1.11.0
 	go.uber.org/zap v1.27.0
-	gonum.org/v1/gonum v0.15.0
+	gonum.org/v1/gonum v0.15.1
 )
 
 require (
@@ -114,6 +115,8 @@ replace go.opentelemetry.io/collector/connector => ../connector
 
 replace go.opentelemetry.io/collector/component => ../component
 
+replace go.opentelemetry.io/collector/component/componentstatus => ../component/componentstatus
+
 replace go.opentelemetry.io/collector/pdata => ../pdata
 
 replace go.opentelemetry.io/collector/pdata/testdata => ../pdata/testdata
@@ -156,8 +159,6 @@ replace go.opentelemetry.io/collector/config/configcompression => ../config/conf
 
 replace go.opentelemetry.io/collector/pdata/pprofile => ../pdata/pprofile
 
-replace go.opentelemetry.io/collector/internal/globalgates => ../internal/globalgates
-
 replace go.opentelemetry.io/collector/consumer/consumerprofiles => ../consumer/consumerprofiles
 
 replace go.opentelemetry.io/collector/consumer/consumertest => ../consumer/consumertest
@@ -165,3 +166,5 @@ replace go.opentelemetry.io/collector/consumer/consumertest => ../consumer/consu
 replace go.opentelemetry.io/collector/component/componentprofiles => ../component/componentprofiles
 
 replace go.opentelemetry.io/collector/client => ../client
+
+replace go.opentelemetry.io/collector/internal/globalgates => ../internal/globalgates
