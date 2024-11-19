@@ -110,7 +110,7 @@ require (
 	gonum.org/v1/gonum v0.15.1 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20241104194629-dd2ea8efbc28 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20241104194629-dd2ea8efbc28 // indirect
-	google.golang.org/protobuf v1.35.1 // indirect
+	google.golang.org/protobuf v1.35.2 // indirect
 )
 
 replace go.opentelemetry.io/collector => ../
@@ -202,3 +202,5 @@ replace go.opentelemetry.io/collector/consumer/consumererror => ../consumer/cons
 replace go.opentelemetry.io/collector/internal/fanoutconsumer => ../internal/fanoutconsumer
 
 replace go.opentelemetry.io/collector/extension/extensiontest => ../extension/extensiontest
+
+replace go.opentelemetry.io/collector/scraper => ../scraper
