@@ -9,15 +9,15 @@ require (
 	go.opentelemetry.io/collector/config/configretry v1.21.0
 	go.opentelemetry.io/collector/consumer v1.21.0
 	go.opentelemetry.io/collector/consumer/consumererror v0.115.0
-	go.opentelemetry.io/collector/consumer/consumererror/consumererrorprofiles v0.115.0
+	go.opentelemetry.io/collector/consumer/consumererror/xconsumererror v0.115.0
 	go.opentelemetry.io/collector/consumer/consumertest v0.115.0
 	go.opentelemetry.io/collector/consumer/xconsumer v0.115.1-0.20241213185000-4593ba7de234
 	go.opentelemetry.io/collector/exporter v0.115.0
-	go.opentelemetry.io/collector/exporter/exporterprofiles v0.115.0
 	go.opentelemetry.io/collector/exporter/exportertest v0.115.0
+	go.opentelemetry.io/collector/exporter/xexporter v0.115.0
 	go.opentelemetry.io/collector/pdata/pprofile v0.115.0
 	go.opentelemetry.io/collector/pdata/testdata v0.115.0
-	go.opentelemetry.io/collector/pipeline/pipelineprofiles v0.115.0
+	go.opentelemetry.io/collector/pipeline/xpipeline v0.115.0
 	go.opentelemetry.io/otel v1.32.0
 	go.opentelemetry.io/otel/sdk v1.32.0
 	go.opentelemetry.io/otel/trace v1.32.0
@@ -67,7 +67,7 @@ replace go.opentelemetry.io/collector/exporter => ../../
 
 replace go.opentelemetry.io/collector/consumer => ../../../consumer
 
-replace go.opentelemetry.io/collector/consumer/consumererror/consumererrorprofiles => ../../../consumer/consumererror/consumererrorprofiles
+replace go.opentelemetry.io/collector/consumer/consumererror/xconsumererror => ../../../consumer/consumererror/xconsumererror
 
 replace go.opentelemetry.io/collector/receiver => ../../../receiver
 
@@ -85,13 +85,13 @@ replace go.opentelemetry.io/collector/extension => ../../../extension
 
 replace go.opentelemetry.io/collector/pdata => ../../../pdata
 
-replace go.opentelemetry.io/collector/exporter/exporterprofiles => ../../exporterprofiles
+replace go.opentelemetry.io/collector/exporter/xexporter => ../../xexporter
 
 replace go.opentelemetry.io/collector/config/configtelemetry => ../../../config/configtelemetry
 
 replace go.opentelemetry.io/collector/config/configretry => ../../../config/configretry
 
-replace go.opentelemetry.io/collector/pipeline/pipelineprofiles => ../../../pipeline/pipelineprofiles
+replace go.opentelemetry.io/collector/pipeline/xpipeline => ../../../pipeline/xpipeline
 
 replace go.opentelemetry.io/collector/extension/experimental/storage => ../../../extension/experimental/storage
 
