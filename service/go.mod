@@ -115,8 +115,8 @@ require (
 	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.31.0 // indirect
 	go.opentelemetry.io/otel/sdk/log v0.7.0 // indirect
 	go.opentelemetry.io/proto/otlp v1.3.1 // indirect
-	golang.org/x/net v0.33.0 // indirect
-	golang.org/x/sys v0.28.0 // indirect
+	golang.org/x/net v0.34.0 // indirect
+	golang.org/x/sys v0.29.0 // indirect
 	golang.org/x/text v0.21.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20241104194629-dd2ea8efbc28 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20241104194629-dd2ea8efbc28 // indirect
@@ -168,8 +168,6 @@ replace go.opentelemetry.io/collector/config/configretry => ../config/configretr
 
 replace go.opentelemetry.io/collector/extension/auth => ../extension/auth
 
-replace go.opentelemetry.io/collector/extension/experimental/storage => ../extension/experimental/storage
-
 replace go.opentelemetry.io/collector/extension/extensioncapabilities => ../extension/extensioncapabilities
 
 replace go.opentelemetry.io/collector/config/configopaque => ../config/configopaque
@@ -213,3 +211,7 @@ replace go.opentelemetry.io/collector/extension/extensiontest => ../extension/ex
 replace go.opentelemetry.io/collector/extension/auth/authtest => ../extension/auth/authtest
 
 replace go.opentelemetry.io/collector/scraper => ../scraper
+
+replace go.opentelemetry.io/collector/scraper/scraperhelper => ../scraper/scraperhelper
+
+replace go.opentelemetry.io/collector/extension/xextension => ../extension/xextension
