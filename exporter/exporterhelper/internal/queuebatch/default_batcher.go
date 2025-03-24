@@ -11,7 +11,6 @@ import (
 	"go.uber.org/multierr"
 
 	"go.opentelemetry.io/collector/component"
-	"go.opentelemetry.io/collector/exporter/exporterbatcher"
 	"go.opentelemetry.io/collector/exporter/exporterhelper/internal/request"
 	"go.opentelemetry.io/collector/exporter/exporterhelper/internal/sender"
 )
@@ -24,7 +23,7 @@ type batch struct {
 
 // defaultBatcher continuously batch incoming requests and flushes asynchronously if minimum size limit is met or on timeout.
 type defaultBatcher struct {
-	batchCfg       exporterbatcher.Config
+	batchCfg       BatchConfig
 	workerPool     chan struct{}
 	consumeFunc    sender.SendFunc[request.Request]
 	stopWG         sync.WaitGroup
@@ -34,10 +33,7 @@ type defaultBatcher struct {
 	shutdownCh     chan struct{}
 }
 
-func newDefaultBatcher(batchCfg exporterbatcher.Config,
-	consumeFunc sender.SendFunc[request.Request],
-	maxWorkers int,
-) *defaultBatcher {
+func newDefaultBatcher(batchCfg BatchConfig, consumeFunc sender.SendFunc[request.Request], maxWorkers int) *defaultBatcher {
 	// TODO: Determine what is the right behavior for this in combination with async queue.
 	var workerPool chan struct{}
 	if maxWorkers != 0 {
@@ -56,7 +52,7 @@ func newDefaultBatcher(batchCfg exporterbatcher.Config,
 }
 
 func (qb *defaultBatcher) resetTimer() {
-	if qb.batchCfg.FlushTimeout != 0 {
+	if qb.batchCfg.FlushTimeout > 0 {
 		qb.timer.Reset(qb.batchCfg.FlushTimeout)
 	}
 }
@@ -65,7 +61,7 @@ func (qb *defaultBatcher) Consume(ctx context.Context, req request.Request, done
 	qb.currentBatchMu.Lock()
 
 	if qb.currentBatch == nil {
-		reqList, mergeSplitErr := req.MergeSplit(ctx, qb.batchCfg.SizeConfig, nil)
+		reqList, mergeSplitErr := req.MergeSplit(ctx, qb.batchCfg.MaxSize, request.SizerTypeItems, nil)
 		if mergeSplitErr != nil || len(reqList) == 0 {
 			done.OnDone(mergeSplitErr)
 			qb.currentBatchMu.Unlock()
@@ -99,7 +95,7 @@ func (qb *defaultBatcher) Consume(ctx context.Context, req request.Request, done
 		return
 	}
 
-	reqList, mergeSplitErr := qb.currentBatch.req.MergeSplit(ctx, qb.batchCfg.SizeConfig, req)
+	reqList, mergeSplitErr := qb.currentBatch.req.MergeSplit(ctx, qb.batchCfg.MaxSize, request.SizerTypeItems, req)
 	// If failed to merge signal all Done callbacks from current batch as well as the current request and reset the current batch.
 	if mergeSplitErr != nil || len(reqList) == 0 {
 		done.OnDone(mergeSplitErr)
@@ -174,7 +170,7 @@ func (qb *defaultBatcher) startTimeBasedFlushingGoroutine() {
 
 // Start starts the goroutine that reads from the queue and flushes asynchronously.
 func (qb *defaultBatcher) Start(_ context.Context, _ component.Host) error {
-	if qb.batchCfg.FlushTimeout != 0 {
+	if qb.batchCfg.FlushTimeout > 0 {
 		qb.timer = time.NewTimer(qb.batchCfg.FlushTimeout)
 		qb.startTimeBasedFlushingGoroutine()
 	}
